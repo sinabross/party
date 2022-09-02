@@ -1,0 +1,146 @@
+<!-- 상단 메뉴 시작 -->
+<header id="header" class="header-effect-shrink" data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': true, 'stickyChangeLogo': true, 'stickyStartAt': 30, 'stickyHeaderContainerHeight': 70}">
+	<div class="header-body border-top-0" style="border-bottom: 1px solid #eee;">
+		<div class="header-container container-fluid px-lg-4">
+			<div class="header-row">
+				<div class="header-column header-column-border-right flex-grow-0">
+					<div class="header-row pr-4">
+						<div class="header-logo">
+							<a href="/index">
+								<img alt="규제개혁당" width="145" data-sticky-width="145" data-sticky-height="40" src="/img/common/logo.svg">
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="header-column">
+					<div class="header-row">
+						<div class="header-nav header-nav-links justify-content-center">
+							<div class="header-nav-main header-nav-main-square header-nav-main-effect-2 header-nav-main-sub-effect-1">
+								<nav class="collapse header-mobile-border-top">
+									<ul class="nav nav-pills" id="mainNav">
+									
+										<li class="wrap_menu_login">
+											<div class="btn_menu_login">
+												<th:block th:if="${session.SESSION_INFO eq null}">
+													<button type="button" onclick="location.href='/login'" class="btn btn-outline btn-rounded btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">로그인</button>
+													<button type="button" onclick="location.href='/member/join'" class="btn btn-outline btn-rounded btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">당원가입</button>
+												</th:block>
+												<th:block th:unless="${session.SESSION_INFO eq null}">
+													<button type="button" onclick="location.href='/logout'" class="btn btn-outline btn-rounded btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">로그아웃</button>
+												</th:block>
+											</div>
+										</li>	
+											
+										<li class="dropdown">
+											
+										
+										
+											<a class="dropdown-item dropdown-toggle" href="/intro/info">
+												소개
+											</a>
+											<ul class="dropdown-menu">
+												<li><a class="dropdown-item" href="/intro/info">인사말</a></li>
+												<li><a class="dropdown-item" href="/intro/regulation">당헌/당규</a></li>
+												<li><a class="dropdown-item" href="/intro/organization">조직도</a></li>
+											</ul>
+											
+											<!-- 
+											<ul class="d-block d-sm-block d-md-block d-lg-none">
+												<li><a class="dropdown-item" href="/intro/info">인사말</a></li>
+												<li><a class="dropdown-item" href="/intro/regulation">당헌/당규</a></li>
+												<li><a class="dropdown-item" href="/intro/organization">조직도</a></li>
+											</ul>
+											 -->
+										</li>
+
+										<li class="dropdown">
+											<a class="dropdown-item dropdown-toggle" href="/policy/reference">
+												정책
+											</a>
+											<ul class="dropdown-menu">
+												<li><a class="dropdown-item" href="/policy/reference">정책 자료실</a></li>
+												<li><a class="dropdown-item" href="/policy/commitment">공약</a></li>
+											</ul>
+											
+											<!-- 
+											<ul class="d-block d-sm-block d-md-block d-lg-none">
+												<li><a class="dropdown-item" href="/policy/reference">정책 자료실</a></li>
+												<li><a class="dropdown-item" href="/policy/commitment">공약</a></li>
+											</ul>
+											 -->
+										</li>
+
+										<li class="dropdown">
+											<a class="dropdown-item dropdown-toggle" href="/news/notice">
+												소식
+											</a>
+											<ul class="dropdown-menu">
+												<li><a class="dropdown-item" href="/news/notice">공지사항</a></li>
+												<li><a class="dropdown-item" href="/news/report">보도자료</a></li>
+												<li><a class="dropdown-item" href="/news/comment">논평</a></li>
+												<li><a class="dropdown-item" href="/news/briefing">브리핑</a></li>
+												<li><a class="dropdown-item" href="/news/data">홍보</a></li>
+											</ul>
+											
+											<!-- 
+											<ul class="d-block d-sm-block d-md-block d-lg-none">
+												<li><a class="dropdown-item" href="/news/notice">공지사항</a></li>
+												<li><a class="dropdown-item" href="/news/report">보도자료</a></li>
+												<li><a class="dropdown-item" href="/news/comment">논평</a></li>
+												<li><a class="dropdown-item" href="/news/briefing">브리핑</a></li>
+												<li><a class="dropdown-item" href="/news/data">홍보</a></li>
+											</ul>
+											 -->
+										</li>
+
+										<li class="dropdown">
+											<a class="dropdown-item dropdown-toggle" href="/party/community">
+												당원
+											</a>
+											<ul class="dropdown-menu">
+												<li><a class="dropdown-item" href="/party/community">당원 게시판</a></li>
+												<li><a class="dropdown-item" href="/party/vote">투표</a></li>
+											</ul>
+											
+											<!-- 
+											<ul class="d-block d-sm-block d-md-block d-lg-none">
+												<li><a class="dropdown-item" href="/party/community">당원 게시판</a></li>
+												<li><a class="dropdown-item" href="/party/vote">투표</a></li>
+											</ul>
+											 -->
+										</li>
+										
+
+
+									</ul>
+								</nav>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="header-column header-column-border-left flex-grow-0 justify-content-center">
+					<div class="header-row pl-4 justify-content-end">
+						<ul class="header-social-icons social-icons d-none d-sm-block social-icons-clean m-0">
+							<th:block th:if="${session.SESSION_INFO eq null}">
+							<li><button type="button" onclick="location.href='/login'" class="btn btn-outline btn-rounded btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">로그인</button></li>
+							<li><button type="button" onclick="location.href='/member/join'" class="btn btn-outline btn-rounded btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">당원가입</button></li>
+							</th:block>
+							<th:block th:unless="${session.SESSION_INFO eq null}">
+							<li><button type="button" onclick="location.href='/logout'" class="btn btn-outline btn-rounded btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">로그아웃</button></li>
+							</th:block>
+							<!-- <li class="social-icons-naver"><a href="http://www.naver.com/" target="_blank" title="Instagram">N</a></li> -->
+							<li class="social-icons-facebook"><a href="https://www.facebook.com/groups/DigitalParty/" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a></li>
+							<!-- li class="social-icons-twitter"><a href="http://www.twitter.com/" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a></li> -->
+							<li class="social-icons-instagram"><a href="https://www.instagram.com/explore/tags/%EA%B7%9C%EC%A0%9C%EA%B0%9C%ED%98%81%EB%8B%B9/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a></li>
+							
+						</ul>
+						<button class="btn header-btn-collapse-nav ml-0 ml-sm-3" data-toggle="collapse" data-target=".header-nav-main nav">
+							<i class="fas fa-bars"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</header>
+<!-- 상단 메뉴 끝 -->

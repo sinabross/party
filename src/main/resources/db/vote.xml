@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="vote">
+	
+	<!-- dp_vote 진행중 카운트조회 -->
+	<select id="selectVoteListCount" parameterType="com.party.dto.Vote" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM dp_vote
+		WHERE CURRENT_DATE() BETWEEN start_dt AND end_dt
+		<if test="searchWord != null and searchWord != ''">
+			AND (vote_title like CONCAT('%', #{searchWord}, '%') || vote_content like CONCAT('%', #{searchWord}, '%'))
+		</if>
+		ORDER BY start_dt,end_dt
+		LIMIT #{start},#{dataPerPage}
+	</select>
+	
+	<!-- dp_vote 진행중 테이블 조회 -->
+	<select id="selectVoteList" parameterType="com.party.dto.Vote" resultType="com.party.dto.Vote">
+		SELECT 
+			vote_idx
+			,vote_title	
+			,vote_content
+			,start_dt	
+			,end_dt		
+			,view_cnt	
+			,reg_id		
+			,DATE_FORMAT(reg_dt, '%y.%m.%d - %p %h:%i') AS reg_dt		
+			,mod_id			
+			,DATE_FORMAT(mod_dt, '%y.%m.%d - %p %h:%i') AS mod_dt
+		FROM dp_vote
+		WHERE CURRENT_DATE() BETWEEN start_dt AND end_dt
+		<if test="searchWord != null and searchWord != ''">
+			AND (vote_title like CONCAT('%', #{searchWord}, '%') || vote_content like CONCAT('%', #{searchWord}, '%'))
+		</if>
+		ORDER BY start_dt,end_dt
+		LIMIT #{start},#{dataPerPage}
+	</select>
+	
+	<!-- dp_vote 마감 카운트조회 -->
+	<select id="selectVoteListEndCount" parameterType="com.party.dto.Vote" resultType="int">
+		SELECT 
+			 COUNT(*)
+		FROM dp_vote a 
+		LEFT OUTER JOIN (
+			SELECT vote_idx, COUNT(party_idx) vote_cnt, SUM(IF(vote='Y',1,0)) y_cnt FROM dp_vote_party GROUP BY vote_idx
+		) b ON(a.vote_idx = b.vote_idx)
+		WHERE end_dt <![CDATA[ < ]]> CURRENT_DATE()
+		ORDER BY end_dt
+		LIMIT #{start},#{dataPerPage}
+	</select>
+	
+	<!-- dp_vote 마감 테이블 조회 -->
+	<select id="selectVoteListEnd" parameterType="com.party.dto.Vote" resultType="com.party.dto.Vote">
+		SELECT 
+			 a.vote_idx
+			,a.vote_title	
+			,a.start_dt		
+			,a.end_dt		
+			,a.view_cnt	
+			,a.reg_id
+			,IFNULL(b.vote_cnt, 0) votecnt
+			,IFNULL(b.y_cnt, 0) ycnt
+			,IFNULL(b.n_cnt, 0) ncnt
+			,ROUND((IFNULL(b.vote_cnt, 0) / (SELECT COUNT(*) FROM dp_party)) * 100) AS votepercent
+			,ROUND((IFNULL(b.y_cnt, 0) / IFNULL(b.vote_cnt, 0)) * 100) AS ypercent
+			,IF(IFNULL(b.vote_cnt, 0) = 0, 0, 100 - ROUND((IFNULL(b.y_cnt, 0) / IFNULL(b.vote_cnt, 0)) * 100)) AS npercent
+		FROM dp_vote a 
+		LEFT OUTER JOIN (
+			SELECT vote_idx, COUNT(party_idx) vote_cnt, SUM(IF(vote='Y',1,0)) y_cnt, SUM(IF(vote='N',1,0)) n_cnt FROM dp_vote_party GROUP BY vote_idx
+		) b ON(a.vote_idx = b.vote_idx)
+		WHERE end_dt <![CDATA[ < ]]> CURRENT_DATE()
+		ORDER BY end_dt
+		LIMIT #{start},#{dataPerPage}
+	</select>
+	
+	<!-- dp_vote 진행중인 투표 단건조회 -->
+	<select id="selectVote" parameterType="com.party.dto.Vote" resultType="com.party.dto.Vote">
+		SELECT 
+			vote_idx	
+			,vote_title	
+			,vote_content
+			,start_dt	
+			,end_dt		
+			,view_cnt	
+			,reg_id		
+			,DATE_FORMAT(reg_dt, '%y.%m.%d - %p %h:%i') AS reg_dt		
+			,mod_id		
+			,DATE_FORMAT(mod_dt, '%y.%m.%d - %p %h:%i') AS mod_dt		
+		FROM dp_vote
+		WHERE vote_idx = #{vote_idx}
+	</select>
+	
+	<!-- dp_vote 마감된 투표 단건조회 -->
+	<select id="selectVoteEnd" parameterType="com.party.dto.Vote" resultType="com.party.dto.Vote">
+		SELECT 
+			 a.vote_idx	
+			,a.vote_title	
+			,a.vote_content
+			,a.start_dt	
+			,a.end_dt		
+			,a.view_cnt	
+			,a.reg_id		
+			,DATE_FORMAT(a.reg_dt, '%y.%m.%d - %p %h:%i') AS reg_dt		
+			,a.mod_id		
+			,DATE_FORMAT(a.mod_dt, '%y.%m.%d - %p %h:%i') AS mod_dt		
+			,IFNULL(b.vote_cnt, 0) votecnt
+			,IFNULL(b.y_cnt, 0) ycnt
+			,IFNULL(b.n_cnt, 0) ncnt
+			,ROUND((IFNULL(b.vote_cnt, 0) / (SELECT COUNT(*) FROM dp_party)) * 100) AS votepercent
+			,ROUND((IFNULL(b.y_cnt, 0) / IFNULL(b.vote_cnt, 0)) * 100) AS ypercent
+			,IF(IFNULL(b.vote_cnt, 0) = 0, 0, 100 - ROUND((IFNULL(b.y_cnt, 0) / IFNULL(b.vote_cnt, 0)) * 100)) AS npercent
+		FROM dp_vote a
+		LEFT OUTER JOIN (
+			SELECT vote_idx, COUNT(party_idx) vote_cnt, SUM(IF(vote='Y',1,0)) y_cnt, SUM(IF(vote='N',1,0)) n_cnt FROM dp_vote_party WHERE vote_idx = #{vote_idx} GROUP BY vote_idx
+		) b ON(a.vote_idx = b.vote_idx)
+		WHERE a.vote_idx = #{vote_idx}
+	</select>
+	
+	<!-- dp_vote 단건조회 -->
+	<select id="selectVoteParty" parameterType="com.party.dto.VoteParty" resultType="int">
+		SELECT 
+			COUNT(*)	
+		FROM dp_vote_party
+		WHERE vote_idx = #{vote_idx}
+		AND party_idx = #{party_idx}
+	</select>
+	
+	<!-- dp_vote 조회수 업데이트 -->
+	<insert id="insertVoteParty" parameterType="com.party.dto.VoteParty" >
+		INSERT INTO dp_vote_party(
+			 vote_idx		
+			,party_idx		
+			,vote			
+			,reg_dt			
+		) VALUES (
+			 #{vote_idx}		
+			,#{party_idx}		
+			,#{vote}			
+			,now()	
+		)
+	</insert>
+	
+	<!-- dp_vote 조회수 업데이트 -->
+	<update id="updateVote" parameterType="com.party.dto.Vote" >
+		UPDATE dp_vote SET
+			view_cnt = view_cnt + 1
+		WHERE vote_idx = #{vote_idx}
+	</update>
+	
+	<!-- dp_vote 저장 -->
+	<insert id="insertVote" parameterType="com.party.dto.Vote" >
+		INSERT INTO dp_vote(
+			 vote_title	
+			,vote_content
+			,start_dt	
+			,end_dt		
+			,view_cnt	
+			,reg_id		
+			,reg_dt		
+			,mod_id		
+			,mod_dt		
+		) VALUES (
+			 #{vote_title}	
+			,#{vote_content}
+			,#{start_dt}	
+			,#{end_dt}		
+			,0	
+			,#{reg_id}		
+			,now()		
+			,#{mod_id}		
+			,now()
+		)		
+	</insert>
+	
+	<!-- dp_vote 수정 -->
+	<update id="updateVoteA" parameterType="com.party.dto.Vote" >
+		UPDATE dp_vote SET
+			 vote_title	= #{vote_title}
+			,vote_content = #{vote_content}
+			,start_dt = #{start_dt}	 
+			,end_dt = #{end_dt}
+		WHERE vote_idx = #{vote_idx}
+	</update>
+	
+	<!-- dp_vote 삭제 -->
+	<delete id="deleteVote" parameterType="com.party.dto.Vote" >
+		DELETE FROM dp_vote 
+		<where>
+	    <foreach collection="list" item="vote_idx" open="" close="" separator="OR">
+	        (vote_idx = #{vote_idx})
+	    </foreach>
+	    </where>
+	</delete>
+</mapper>

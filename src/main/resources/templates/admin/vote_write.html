@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	<!--datepicker-->
+	<link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+	<script src="/js/bootstrap-datepicker.js"></script>
+	<script src="/js/bootstrap-datepicker.ko.js"></script>
+	
+	<script type="text/javascript" th:inline="javascript">
+		let editorVote;
+		$(document).ready(function(){
+			
+			$('#btnList').on('click', btnListVote);
+			$('#btnSave').on('click', btnSaveVote);
+			loadEditorVote(/*[[${data}]]*/);
+			
+			$('#start_dt').on('change', changeStartDt);
+			$('#end_dt').on('change', changeEndDt);
+		});
+		
+		var changeStartDt = function(){
+			
+			var start_dt = $.trim($('#start_dt').val());
+			var end_dt = $.trim($('#end_dt').val());
+			
+			var today = new Date();
+			var dd = today.getDate();
+			var mm = today.getMonth()+1; //January is 0!
+			var yyyy = today.getFullYear();
+
+			if(dd<10) {
+			    dd='0'+dd
+			} 
+
+			if(mm<10) {
+			    mm='0'+mm
+			} 
+
+			today = yyyy + mm + dd;
+			var today_int = parseInt(today);
+			
+			var start_int = 0;
+			if(start_dt != ''){
+				start_int = parseInt(start_dt.split('.').join(''));
+			}
+			var end_int = 0;
+			if(end_dt != ''){
+				end_int = parseInt(end_dt.split('.').join(''));
+			}
+			
+			if(start_int != 0){
+				if(start_int < today_int){
+					alert('투표시작일은 오늘날짜 이후로 선택하세요.');
+					$('#start_dt').focus();
+					$('#start_dt').val('');
+					return;
+				}
+			}
+			
+			if(start_int != 0 && end_int != 0){
+				if(start_int > end_int){
+					alert('투표시작일은 투표종료일 이전으로 선택하세요.');
+					$('#start_dt').focus();
+					$('#start_dt').val('');
+					return;
+				}				
+			}
+			
+		}
+		
+		var changeEndDt = function(){
+			
+			var start_dt = $.trim($('#start_dt').val());
+			var end_dt = $.trim($('#end_dt').val());
+			
+			var today = new Date();
+			var dd = today.getDate();
+			var mm = today.getMonth()+1; //January is 0!
+			var yyyy = today.getFullYear();
+
+			if(dd<10) {
+			    dd='0'+dd
+			} 
+
+			if(mm<10) {
+			    mm='0'+mm
+			} 
+
+			today = yyyy + mm + dd;
+			var today_int = parseInt(today);
+			
+			var start_int = 0;
+			if(start_dt != ''){
+				start_int = parseInt(start_dt.split('.').join(''));
+			}
+			var end_int = 0;
+			if(end_dt != ''){
+				end_int = parseInt(end_dt.split('.').join(''));
+			}
+			
+			if(end_int != 0){
+				if(end_int < today_int){
+					alert('투표종료일은 오늘날짜 이후로 선택하세요.');
+					$('#end_dt').focus();
+					$('#end_dt').val('');
+					return;
+				}
+			}
+			
+			if(start_int != 0 && end_int != 0){
+				if(start_int > end_int){
+					alert('투표종료일은 투표시작일 이후로 선택하세요.');
+					$('#end_dt').focus();
+					$('#end_dt').val('');
+					return;
+				}
+			}
+		}
+		
+		
+		// 목록화면으로 이동
+		var btnListVote = function(){
+			$('#mainForm #status').val('I');
+			$('#mainForm').attr('method','POST');
+			$('#mainForm').attr('action', '/party/vote').submit();
+		}
+		
+		var loadEditorVote = function(data){
+			CKEDITOR.replace('vote_content', {height: 500});
+			
+			if(data != null){
+				CKEDITOR.instances.vote_content.setData(data.vote_content);
+			}
+		}
+		
+		var loadEditorVote2 = function(data){
+			ClassicEditor
+		    .create( document.querySelector( '#vote_content' ), {
+		    	/*** 에디터 업로드 시작 **/
+		    	// extraPlugins: [ MyCustomUploadAdapterPlugin ]
+		    	/*** 에디터 업로드 종료 **/
+		    	//---------------------------------------------------------------- // 여기 툴바 부분의 옵션명을 넣어주면 원하는 설정을 할수 있습니다. 
+		    	toolbar: [ 
+		    		'undo', 
+		        	'redo', 
+		        	'alignment:left', 
+		        	'alignment:right', 
+		        	'alignment:center', 
+		        	'alignment:justify', 
+		        	'alignment', 
+		        	'fontSize', 
+		        	'fontFamily', 
+		        	'highlight:yellowMarker', 
+		        	'highlight:greenMarker', 
+		        	'highlight:pinkMarker', 
+		        	'highlight:blueMarker', 
+		        	'highlight:redPen', 
+		        	'highlight:greenPen', 
+		        	'removeHighlight', 
+		        	'highlight', 
+		        	'bold', 
+		        	'italic', 
+		        	'strikethrough', 
+		        	'underline', 
+		        	'blockQuote', 
+		        	//'ckfinder', 
+		        	//'imageTextAlternative', 
+		        	//'imageUpload', 
+		        	'heading', 
+		        	//'imageStyle:full', 
+		        	//'imageStyle:alignLeft', 
+		        	//'imageStyle:alignRight', 
+		        	'link', 
+		        	'numberedList', 
+		        	'bulletedList', 
+		        	'mediaEmbed', 
+		        	'insertTable', 
+		        	'tableColumn', 
+		        	'tableRow', 
+		        	'mergeTableCells', 
+		        	'indent', 
+		        	'outdent', 
+		        	'fontColor', 
+		        	'fontBackgroundColor', 
+		        	'code'
+		    	], 
+		    	//---------------------------------------------------------------- 
+		    })
+		    .then(function(newEditor){
+		    	editorVote = newEditor;
+		    	if(data != null){
+		    		newEditor.setData(data.vote_content);
+		    	}
+		    })
+		    .catch(function(error){
+		        console.error( error );
+		    });
+		    //.then(newEditor => {
+		    //	editorVote = newEditor;
+		    //	if(data != null){
+		    //		newEditor.setData(data.vote_content);
+		    //	}
+		    //})
+		    //.catch( error => {
+		    //    console.error( error );
+		    //} );
+		}
+		
+		// 저장
+		var btnSaveVote = function(){
+			
+			if($.trim($('#vote_title').val()) == ''){
+				alert('제목을 입력하세요.');
+				$('#vote_title').focus();
+				return;
+			}
+			if($.trim(CKEDITOR.instances.vote_content.getData()) == ''){
+				alert('내용을 입력하세요.');
+				$('#vote_content').focus();
+				return;
+			}
+			if($.trim($('#start_dt').val()) == ''){
+				alert('투표시작일을 선택하세요.');
+				$('#start_dt').focus();
+				return;
+			}
+			if($.trim($('#end_dt').val()) == ''){
+				alert('투표종료일을 선택하세요.');
+				$('#end_dt').focus();
+				return;
+			}
+			
+			var formData = new FormData();
+			formData.append('start_dt', $('#start_dt').val());
+			formData.append('end_dt', $('#end_dt').val());
+		    formData.append('vote_title', $('#vote_title').val());
+		    formData.append('vote_content', CKEDITOR.instances.vote_content.getData());
+			
+			var url = '/admin/vote/addProc';
+			
+			if(/*[[${data}]]*/ != null){
+				formData.append('vote_idx',$('#mainForm #vote_idx').val());
+				url = '/admin/vote/modifyProc';
+			}
+			
+			$.ajax({
+		        type: 'POST',
+		        url: url,	    
+		        data: formData,
+		        processData: false,
+		        contentType: false,
+		        success:function(response) {
+		        	if(response.result == 'success'){
+		        		alert('저장성공');
+		        		btnListVote();
+		        	}else{
+		        		alert('저장실패');
+		        	}
+		        },
+		        error:function(response, status, error) {
+		            alert('btnSaveVote error.' + error);
+		        }
+		    });
+		}
+		
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+	
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="${vote.page}">
+			<input type="hidden" id="vote_idx" name="vote_idx" th:value="${vote.vote_idx}">
+			<input type="hidden" id="status" name="vote_idx" th:value="${vote.status}">
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_03.png); background-repeat: no-repeat; background-position: center; background-size: cover" id="title1">
+				투표
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> <span id="title2">&gt; 당원 &gt; 투표</span>
+				</div>
+			</div>
+
+			<section class=" ">
+				<div class="container">
+					
+					<div class="col-12" style="margin-top:20px;">
+					
+						
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >작성자</label>
+							<div class="col-lg-9">
+								<input type="text" class="form-control" th:value="${session.SESSION_INFO.party_id}" readOnly >
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >제목</label>
+							<div class="col-lg-9">
+								<input type="text" class="form-control" id="vote_title" name="vote_title" placeholder="제목을 입력해주세요" th:if="${data eq null}" >
+								<input type="text" class="form-control" id="vote_title" name="vote_title" placeholder="제목을 입력해주세요" th:unless="${data eq null}" th:value="${data.vote_title}">
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >시작일</label>
+							<div class="col-lg-9">
+								<input type="text" class="form-control" id="start_dt" name="start_dt" placeholder="투표시작일을 선택하세요." th:if="${data eq null}"  readOnly>
+								<input type="text" class="form-control" id="start_dt" name="start_dt" placeholder="투표시작일을 선택하세요." th:unless="${data eq null}" th:value="${data.start_dt}" readOnly>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >마감일</label>
+							<div class="col-lg-9">
+								<input type="text" class="form-control" id="end_dt" name="end_dt" placeholder="투표마감일을 선택하세요." th:if="${data eq null}" readOnly>
+								<input type="text" class="form-control" id="end_dt" name="end_dt" placeholder="투표마감일을 선택하세요." th:unless="${data eq null}" th:value="${data.end_dt}" readOnly>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >내용</label>
+							<div class="col-lg-9">
+								<textarea class="form-control" id="vote_content" name="vote_content" rows="20" ></textarea>
+							</div>
+						</div>
+						
+						<hr/>
+						
+					</div>
+					
+					<div class="col-12 text-center">
+						<a href="javascript:void(0)" class="btn btn-outline btn-rounded btn-primary mb-2" id="btnList">목록보기</a>
+						<a href="javascript:void(0)" class="btn btn-outline btn-rounded btn-primary mb-2" id="btnSave">저장</a>
+					</div>
+					
+					
+					
+				</div>
+			</section>
+
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+	
+	<!--datepicker-->
+	<link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+	<script src="/js/bootstrap-datepicker.js"></script>
+	<script src="/js/bootstrap-datepicker.ko.min.js"></script>
+	
+	<script>
+	$(function() {	
+		
+		var minDate = new Date();
+		$('#start_dt').datepicker({
+		    format: "yyyy.mm.dd",	//데이터 포맷 형식(yyyy : 년 mm : 월 dd : 일 )
+		    autoclose : true,	//사용자가 날짜를 클릭하면 자동 캘린더가 닫히는 옵션
+		    title: "투표시작일",	//캘린더 상단에 보여주는 타이틀
+		    language : "ko",	//달력의 언어 선택, 그에 맞는 js로 교체해줘야한다.
+		    changeMonth : true,
+		    minDate : minDate,
+		    onClose: function( selectedDate ) {    
+                // 시작일(fromDate) datepicker가 닫힐때
+                // 종료일(toDate)의 선택할수있는 최소 날짜(minDate)를 선택한 시작일로 지정
+                //console.log(selectedDate);
+                //$("#end_dt").datepicker( "option", "minDate", selectedDate );
+            }
+		    
+		});//datepicker end
+		
+		$('#end_dt').datepicker({
+		    format: "yyyy.mm.dd",	//데이터 포맷 형식(yyyy : 년 mm : 월 dd : 일 )
+		    autoclose : true,	//사용자가 날짜를 클릭하면 자동 캘린더가 닫히는 옵션
+		    title: "투표마감일",	//캘린더 상단에 보여주는 타이틀
+		    language : "ko",	//달력의 언어 선택, 그에 맞는 js로 교체해줘야한다.
+		    changeMonth : true,
+		    minDate : minDate,
+		    onClose: function( selectedDate ) {
+                // 종료일(toDate) datepicker가 닫힐때
+                // 시작일(fromDate)의 선택할수있는 최대 날짜(maxDate)를 선택한 종료일로 지정 
+                //console.log(selectedDate);
+                //$("#start_dt").datepicker( "option", "maxDate", selectedDate );
+            }
+		    
+		});//datepicker end
+	});//ready end
+</script>
+</body>
+
+</html>

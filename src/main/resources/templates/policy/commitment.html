@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	<script type="text/javascript" th:inline="javascript">
+		var notice_type = 'NTC02';
+		// 페이징 유지
+		var page = /*[[${notice.page}]]*/
+		var dataPerPage = 10;
+		var pageCount = 10;
+	
+		$(document).ready(function(){
+			
+			// 관리자 기능 remove
+			if(/*[[${session.SESSION_INFO}]]*/ != null){
+				var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+				if(sessionInfo.party_level != 999999999){
+					$('.funcAdm').remove();
+				}else{
+					// ADMIN - 글쓰기 버튼  
+					$('.btnRegistration').on('click', btnRegistration);
+					// ADMIN - 선택 글 삭제 버튼
+					$('.btnDelete').on('click', deleteNotice);
+					// ADMIN - 전체선택
+					$('#allCheck').on('click', allCheck);
+				}
+			}else{
+				$('.funcAdm').remove();
+			}
+			
+			// PC/MOBILE 검색 BUTTON
+			$('.btnSearch').off('click').on('click', function(){
+				list(1);
+			});
+			
+			// PC/MOBILE 검색 INPUT
+			$('.searchWord').off('chnage').on('change', function(){
+				var value = $(this).val();
+				$('.searchWord').val(value);
+			});
+			
+			list(page); // 페이징 유지
+		});
+		
+		// 상세보기 화면이동
+		var detailView = function(){
+			$('#mainForm #notice_type').val(notice_type);
+			$('#mainForm #notice_idx').val($(this).attr('data-notice-idx'));
+			$('#mainForm').attr('method','POST').attr('action','/policy/commitment/view').submit();
+		}
+		
+		//목록조회
+		var list = function(page){
+			
+			// 페이징 유지
+			$('#mainForm #page').val(page);
+			
+			if(page == undefined || page == null){
+				page = 1;
+			}
+			
+			$.ajax({
+		        type:"POST",
+		        url:"/policy/commitment/list",
+		        data: {
+		        	'notice_type' : notice_type,
+		        	'searchWord' : $('#searchWord').val(),
+		        	'page' : page
+		        },
+		        cache: false,
+		        success:function(response) {
+		        	
+		        	var list = response.list;
+		        	var mList = response.mList;
+		        	var total = response.total;
+		        	var body = '';
+		        	var mBody = '';
+		        	var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+		        	
+		        	if(list.length > 0){
+		        		
+		        		dataPerPage = 10;
+			    		pageCount = 10;
+		        		
+			        	for(var i=0; i<list.length; i++){
+			        		
+			        		var notice = list[i];
+			        		
+			        		if(i == 0){
+			        			notice_idx = notice.notice_idx;
+			        		}
+			        		
+			        		if(notice.notice_title.length > 50){
+		        				notice.notice_title = notice.notice_title.substr(0, 50) + "...";
+		        			}
+			        		
+			        		if(sessionInfo==null){
+			        			
+			        			//PC
+			        			body += '<tr>';
+				        		body += '<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i )) + '</td>';
+				        		
+				        		if(notice.division=="공약"){				        			
+				        			body += '<td><span class="badge badge-light badge-sm">' + notice.division + '</span></td>';
+				        		}else {
+				        			body += '<td><span class="badge badge-primary badge-sm">' + notice.division + '</span></td>';
+				        		}
+				        		
+				        		body += '<td class="text-left"><a href="javascript:void(0)" class="detailView" data-notice-idx="' + notice.notice_idx + '">' + notice.notice_title + '</a></td>';
+				        		body += '<td>' + notice.reg_id + '</td>';
+				        		body += '<td class="font12">' + notice.reg_dt + '</td>';
+				        		body += '<td class="font12">' + notice.view_cnt + '</td>';
+				        		body += '</tr>';
+			        			
+			        		}else{
+			        			
+			        			if(sessionInfo.party_level != 999999999){
+			        				//PC
+				        			body += '<tr>';
+					        		body += '<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i ))+ '</td>';
+					        		
+					        		if(notice.division=="공약"){				        			
+					        			body += '<td><span class="badge badge-light badge-sm">' + notice.division + '</span></td>';
+					        		}else {
+					        			body += '<td><span class="badge badge-primary badge-sm">' + notice.division + '</span></td>';
+					        		}
+					        		
+					        		body += '<td class="text-left"><a href="javascript:void(0)" class="detailView" data-notice-idx="' + notice.notice_idx + '">' + notice.notice_title + '</a></td>';
+					        		body += '<td>' + notice.reg_id + '</td>';
+					        		body += '<td class="font12">' + notice.reg_dt + '</td>';
+					        		body += '<td class="font12">' + notice.view_cnt + '</td>';
+					        		body += '</tr>';
+			        				
+			        			}else{
+			        				//PC
+				        			body += '<tr>';
+				        			body += '<td class="funcAdm"><input type="checkbox" class="notice-idx-check" value="' + notice.notice_idx + '"></td>';
+					        		body += '<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i )) + '</td>';
+					        		
+					        		if(notice.division=="공약"){				        			
+					        			body += '<td><span class="badge badge-light badge-sm">' + notice.division + '</span></td>';
+					        		}else {
+					        			body += '<td><span class="badge badge-primary badge-sm">' + notice.division + '</span></td>';
+					        		}
+					        		
+					        		body += '<td class="text-left"><a href="javascript:void(0)" class="detailView" data-notice-idx="' + notice.notice_idx + '">' + notice.notice_title + '</a></td>';
+					        		body += '<td>' + notice.reg_id + '</td>';
+					        		body += '<td class="font12">' + notice.reg_dt + '</td>';
+					        		body += '<td class="font12">' + notice.view_cnt + '</td>';
+					        		body += '</tr>';
+			        				
+			        			}
+			        			
+			        		}
+			        		
+			        		
+			        		
+			        	}
+			        	
+		        	}else{
+		        		
+		        		var colspan = 7;
+		        		if(sessionInfo == null){
+		        			colspan = 6;
+		        		}else{
+		        			
+			        		if(sessionInfo.party_level != 999999999){
+			        			colspan = 6;
+			        		}
+		        		}
+		        		
+		        		//PC
+		        		body += '<tr>';
+		        		body += '<td colspan="' + colspan + '" style="text-align:center">게시글이 존재하지 않습니다.</td>';
+		        		body += '<tr>';
+		        		
+		        	}
+		        	$('#commitmentList').html(body);
+		        	paging(total, page, 'commitmentPaging');
+		        	
+		        	
+		        		        		
+		        	//Mobile
+		        	if(mList.length > 0){
+		        		
+		        		dataPerPage = 5;
+			    		pageCount = 5;
+		        		
+						for(var i=0; i<mList.length; i++){
+			        		
+			        		var notice = mList[i];
+			        		
+			        		if(i == 0){
+			        			notice_idx = notice.notice_idx;
+			        		}
+			        		
+			        		if(notice.notice_title.length > 55){
+		        				notice.notice_title = notice.notice_title.substr(0, 55) + "...";
+		        			}
+			        		
+			        		//MOBILE
+			        		mBody += '<tr>';
+							mBody += '	<td style="font-size: 14px;">';
+							mBody += '		<a href="javascript:void(0)" class="detailView" data-notice-idx="' + notice.notice_idx + '">' + notice.notice_title + '</a><br/>';
+							mBody += '		<span class="font12 grayC">';
+							mBody += '			<i class="fas fa-user"></i> ' + notice.reg_id + ' &nbsp;&nbsp;&nbsp;';
+							mBody += '			<i class="far fa-calendar-minus"></i> ' + notice.reg_dt + ' &nbsp;&nbsp;&nbsp;';
+							mBody += '			<i class="far fa-eye"></i> ' + notice.view_cnt;
+							mBody += '		</span>';
+							mBody += '	</td>';
+							mBody += '</tr>';
+			        		
+			        	}
+		        		
+		        	}else{
+		        		
+		        		// MOBILE
+		        		mBody += '<tr>';
+		        		mBody += '		<td style="font-size: 14px;text-align:center">';
+		        		mBody += '			게시글이 존재하지 않습니다.';
+		        		mBody += '		</td>';
+						mBody += '<tr>';
+		        		
+		        	}
+		        	
+		        	$('#commitmentMobileList').html(mBody);
+		        	paging(total, page, 'commitmentMobilePaging');
+		        	
+		        	// 상세보기 이벤트 추가
+		        	$('.detailView').off('click').on('click', detailView);
+		        	
+		        },
+		        error:function(response, status, error) {
+		            alert("리스트를 불러올 수 없습니다.");
+		        }
+		    });
+		};
+		
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="1"><!-- 페이징 유지 -->
+			<input type="hidden" id="notice_idx" name="notice_idx">
+			<input type="hidden" id="notice_type" name="notice_type" th:value="NTC02"><!-- ADMIN -->
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_04.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				공약
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 정책 &gt; 공약
+				</div>
+			</div>
+
+			<!-- web -->
+			<section class=" ">
+				<div class="container d-none d-sm-none d-md-none d-lg-block">
+					<div class="row">
+						<div class="col-md-12 text-center ">
+							<table class="table">
+								<thead>
+									<tr>
+										<th class="funcAdm"><input type="checkbox" id="allCheck"></th>
+										<th>번호</th>
+										<th>구분</th>
+										<th>제목</th>
+										<th>작성자</th>
+										<th>날짜</th>
+										<th>조회수</th>
+									</tr>
+								</thead>
+								<tbody id="commitmentList">									
+								</tbody>
+							</table>
+							
+							<!-- 글쓰기 -->
+							<hr class="solid">
+							<div class="row">
+								<div class="col-12 text-right">
+									<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnRegistration" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">글 쓰기</button>
+									<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnDelete" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">선택 글 삭제</button>
+								</div>
+							</div>
+							<!-- 글쓰기 끝 -->
+							
+							<!-- 페이징 -->
+							<div class="row justify-content-center" id="commitmentPaging">
+							</div>
+							<!-- 페이징 끝 -->
+							
+							<div class="row justify-content-center">
+								<div class="col-lg-5">
+									<div class="input-group">
+										<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요" id="searchWord" name="searchWord">
+										<div class="input-group-append">
+										<button class="btn btn-primary btnSearch" type="button">
+										<i class="fa fa-search"></i>
+										</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</section>
+			
+			
+			
+			<!-- mobile -->
+			<section>
+				<div class="container d-block d-sm-block d-md-block d-lg-none">
+					<div class="row">
+						<div class="col-md-12">
+							<table class="table">
+								<tbody id="commitmentMobileList">
+								</tbody>
+							</table>
+							
+							<!-- 글쓰기 -->
+							<hr class="solid">
+							<div class="row">
+								<div class="col-12 text-center">
+									<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnRegistration" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">글 쓰기</button>
+									<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnDelete" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">선택 글 삭제</button>
+								</div>
+							</div>
+							<!-- 글쓰기 끝 -->
+							
+							<!-- 페이징 -->
+							<div class="row justify-content-center" id="commitmentMobilePaging">
+							</div>
+							<!-- 페이징 끝 -->
+							
+							<div class="row justify-content-center">
+								<div class="col-lg-5">
+									<div class="input-group">
+										<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요">
+										<div class="input-group-append">
+										<button class="btn btn-primary btnSearch" type="button">
+										<i class="fa fa-search"></i>
+										</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="party">
+	
+	<!-- dp_party 테이블 조회 -->
+	<select id="selectParty" parameterType="com.party.dto.Party" resultType="com.party.dto.Party">
+		SELECT
+			 party_id	
+			 ,party_idx	
+			 ,party_pwd
+			 ,party_level
+			 ,id
+		FROM dp_party 
+		WHERE 1=1
+		<if test="party_id != null and party_id != ''">AND party_id=#{party_id}</if>
+		<if test="mobile != null and mobile != ''">AND mobile=#{mobile}</if>
+	</select>
+		
+	<!-- dp_notice 조회수 업데이트 -->
+	<insert id="insertParty" parameterType="com.party.dto.Party" >
+		INSERT INTO dp_party(
+			 party_id
+			,party_pwd	
+			,name		
+			,mobile		
+			,birth		
+			,addr		
+			,addr_detail
+			,id
+			,party_level
+			,reg_dt		
+		) VALUES (
+			 #{party_id}   
+			,#{party_pwd}	
+			,#{name}		
+			,#{mobile}		
+			,#{birth}		
+			,#{addr}		
+			,#{addr_detail}
+			,''		
+			,1
+			,now()		
+		)
+	</insert>	
+	
+</mapper>

@@ -1,0 +1,142 @@
+/* common.css */
+.table {
+	margin-bottom:0 !important;
+}
+
+.solid {
+	margin-top:0 !important;
+}
+
+
+
+
+
+/* commonMenu.html */
+.wrap_menu_login {
+	display:none;
+	text-align:right;
+}
+
+.btn_menu_login {
+	display:inline-block;
+}
+
+
+
+
+
+/* index.html */
+.indexCommentList1{
+	animation-delay: 0.2s;
+}
+
+.indexCommentList2{
+	animation-delay: 0.4s;
+}
+
+.indexCommentList3{
+	animation-delay: 0.6s;
+}
+
+
+
+
+
+/* comment.html */
+.txt_comment_list {
+	margin: 0 auto 50px;
+}
+
+.img_comment_list {
+	width: 22rem;
+	height: 16rem;
+}
+
+.comment_list_title {
+	height: 55px;
+	overflow: hidden;
+}
+
+.comment_list_content {
+	height: 50px;
+    overflow: hidden;    
+}
+
+
+
+
+
+/* comment_view.html */
+#commentContent{
+	border-top: none !important;
+}
+
+
+
+
+
+/* notice_write.html */
+.li_thumbnail {
+	list-style: none;
+    display: inline-block;
+    margin:15px;
+}
+
+.wrap_thumbnail, .img_thumbnail {
+    display:block;
+}
+
+.xBtn {
+	border-style: none;
+    background: none;    
+}
+
+.li_attach {
+	list-style:none;
+	margin:10px auto 10px 0;
+	position:relative;
+}
+
+.txt_file_name {
+	margin-right:5px;
+}
+
+#uploadResult ul {
+	padding-left: 0;
+}
+
+
+
+
+
+
+/* Mobile */
+@media screen and (max-width: 991px) {
+	.wrap_menu_login {
+		display:none !important;
+	}
+}
+
+
+@media screen and (max-width: 575px) {
+	.wrap_menu_login {
+		display:block !important;
+	}
+}
+
+@media screen and (min-width:992px) {
+	.index_card {
+		height:180px;
+	}
+}
+
+ /* IE10+ */
+@media screen and (-ms-high-contrast: none) {
+ 	.index_card {
+ 		height:180px;
+ 	}
+}
+
+
+
+

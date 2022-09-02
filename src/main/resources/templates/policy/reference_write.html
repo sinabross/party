@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+	
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_03.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				정책자료실
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 정책 &gt; 정책자료실
+				</div>
+			</div>
+
+			<section class=" ">
+				<div class="container">
+					
+					<div class="col-12" style="margin-top:20px;">
+					
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >구분</label>
+							<div class="col-lg-9">
+								<select class="form-control mb-3">
+									<option>공지</option>
+								</select>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >작성자</label>
+							<div class="col-lg-9">
+								<input type="text" class="form-control" placeholder="이름을 입력해주세요">
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >제목</label>
+							<div class="col-lg-9">
+								<input type="text" class="form-control" placeholder="제목을 입력해주세요">
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >내용</label>
+							<div class="col-lg-9">
+								<textarea class="form-control" rows="15" id="textareaDefault"></textarea>
+							</div>
+						</div>
+						
+						<hr/>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >파일 첨부하기 1</label>
+							<div class="col-lg-9">
+								<span class="btn btn-default btn-file">									
+									<input type="file">
+								</span>
+							</div>
+						</div>
+						
+						<div class="form-group row">
+							<label class="col-lg-3 control-label text-lg-right pt-2" >파일 첨부하기 2</label>
+							<div class="col-lg-9">
+								<span class="btn btn-default btn-file">									
+									<input type="file">
+								</span>
+							</div>
+						</div>
+						
+						<hr/>
+						
+					</div>
+					
+					<div class="col-12 text-center">
+						<a href="/policy/reference" class="btn btn-outline btn-rounded btn-primary mb-2">글 작성하기</a>
+						<a href="/policy/reference" class="btn btn-outline btn-rounded btn-primary mb-2">목록보기</a>
+					</div>
+					
+					
+					
+				</div>
+			</section>
+
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

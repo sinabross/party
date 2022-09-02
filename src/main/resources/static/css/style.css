@@ -1,0 +1,108 @@
+.infoTitle{
+	color:#eee;
+	font-size: 44px;
+	padding-top: 50px;
+	padding-bottom: 50px;
+	font-weight: 400;
+	border-bottom: 1px solid #eee;
+}
+.borderBottom{
+	border-bottom: 2px solid #4d4b45;
+	padding: 10px 0;
+	font-size: 12px;
+}
+.nav-tabs .nav-link {
+	border:0;
+}
+.nav-link {
+	font-size: 18px;
+	padding:20px;
+	color:#999;
+}
+.nav-tabs .nav-link.active {
+	font-size: 18px;
+    font-weight:bold;
+    background-color: transparent;
+    border-bottom:3px solid #274b6d;
+    border-right: none;
+    border-left: none;
+    border-top: none;
+	padding:20px;
+}
+.font12{
+	font-size: 12px;
+	color:#777;
+}
+.font20{
+	font-size: 20px;
+}
+
+td{
+	color:#777;
+}
+td > a {
+	color:#777;
+}
+td > a:hover {
+	color:#000;
+	text-decoration: none;
+}
+
+.has-search .form-control {
+    padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+.mt-0{
+	margin-top: 50px !important;
+}
+small{
+	font-size: 12px;
+}
+.pt-2{
+	padding-top: .22rem !important;
+}
+.txtBlue{
+	color:dodgerblue;
+}
+.txtRed{
+	color:crimson;
+}
+.social-icons-naver a{	
+	font-weight: bold;
+}
+.social-icons-naver_w a{
+	color:#fff !important;
+	font-weight: bold;
+}
+.social-icons-naver a:hover{
+	background-color: #00c63b !important;
+	color:#fff;
+	font-weight: bold;
+}
+.social-icons-naver_w a:hover{
+	background-color: #00c63b !important;
+	color:#fff;
+	font-weight: bold;
+}
+.borderb{
+	border-bottom: 1px solid #eee;
+}
+
+.borderb:last-child{
+	border:none !important;	
+}
+
+.grayC{
+	color:#999;
+}

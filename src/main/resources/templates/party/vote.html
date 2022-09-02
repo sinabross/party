@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		var status = /*[[${param.status}]]*/
+		// 페이징 유지
+		var page = /*[[${vote.page}]]*/
+		var epage = 1;
+		var dataPerPage = 10;
+		var pageCount = 10;
+		
+		$(document).ready(function(){
+			
+			// 관리자 기능 remove
+			if(/*[[${session.SESSION_INFO}]]*/ != null){
+				var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+				if(sessionInfo.party_level != 999999999){
+					$('.funcAdm').remove();
+				}else{
+					// ADMIN - 글쓰기 버튼  
+					$('.btnRegistration').on('click', btnRegistrationVote);
+					// ADMIN - 선택 글 삭제 버튼
+					$('.btnDelete').on('click', deleteVote);
+					// ADMIN - 전체선택
+					$('#allCheck').on('click', allCheckVote);
+				}
+			}else{
+				$('.funcAdm').remove();
+			}
+			
+			// PC/MOBILE 검색 BUTTON
+			$('.btnSearch').off('click').on('click', function(){
+				list(1);
+			});
+			
+			// PC/MOBILE 검색 INPUT
+			$('.searchWord').off('chnage').on('change', function(){
+				var value = $(this).val();
+				$('.searchWord').val(value);
+			});
+			
+			$('.nav-item').off('click').on('click', function(){
+				status = $(this).attr('data-status');
+				$('#mainForm #status').val(status);
+				$('#mainForm').attr('method','POST').attr('action', '/party/vote').submit();
+				// list(1);
+			});
+			
+			if(status == null || status == 'null' || status == undefined){
+				status = 'I';
+			}
+			
+			// 탭설정 
+			$('.nav-item').each(function(index, item){
+				if($(this).attr('data-status') == status){
+					$(this).addClass('active');
+				}else{
+					$(this).removeClass('active');
+				}
+			});
+			
+			// 목록
+			$('.tab-pane').each(function(index, item){
+				if($(this).attr('data-status') == status){
+					$(this).addClass('show');
+					$(this).addClass('active');
+				}else{
+					$(this).removeClass('show');
+					$(this).removeClass('active');
+				}
+			});
+			
+			list(page);// 페이징 유지
+		});
+		
+		// 상세보기 화면이동
+		var detailView = function(){
+			var url = '/party/vote_view';
+			if(status == 'E'){
+				url = '/party/vote_view2';
+			}
+			
+			$('#mainForm #vote_idx').val($(this).attr('data-vote-idx'));
+			$('#mainForm').attr('method','POST').attr('action', url).submit();
+		}
+		
+		// 목록조회
+		var list = function(page){
+			
+			// 페이징 유지
+			$('#mainForm #page').val(page);
+			
+    		$.ajax({
+		        type:'POST',
+		        url:'/party/vote/list',
+		        data: {
+					'status' : status,		        	
+		        	'searchWord' : $('#searchWord').val(),
+		        	'page' : page
+		        },
+		        cache: false,
+		        success:function(response) {
+		        	
+		        	var list = response.list;
+		        	var mList = response.mList
+		        	var total = response.total;
+		        	var body = '';
+		        	var mBody = '';
+	        		var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+		        	
+	        		// 투표 진행중인 안건
+	        		if(status == 'I'){
+	        			
+	        			if(list.length > 0){
+			        		
+			        		dataPerPage = 10;
+			        		
+				        	for(var i=0; i<list.length; i++){
+				        		
+				        		var vote = list[i];
+				        		
+				        		if(i == 0){
+				        			vote_idx = vote.vote_idx;
+				        		}
+				        		
+				        		if(vote.vote_title.length > 40){
+			        				vote.vote_title = vote.vote_title.substr(0, 40) + "...";
+			        			}
+				        		
+			        			var diffDay = dateDiff(vote.end_dt);
+			        			
+				        		if(sessionInfo == null){
+				        			
+				        			// PC
+				        			body += '<tr>';
+					        		body += '	<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i )) + '</td>';
+					        		if(diffDay > 1){
+						        		body += '	<td><span class="badge badge-primary badge-sm">진행중</span></td>';
+					        		}else{
+						        		body += '	<td><span class="badge badge-secondary badge-sm">마감입박</span></td>';
+					        		}
+									body += '	<td class="text-left"><a href="javascript:void(0)" class="detailView" data-vote-idx="' + vote.vote_idx + '">'+ vote.vote_title +'</a></td>';
+									body += '	<td>'+  vote.reg_id +'</td>';
+									body += '	<td class="font12">'+  vote.start_dt +'~' + vote.end_dt +'</td>';
+									body += '	<td class="font12">D-'+  diffDay +'</td>';
+									body += '	<td class="font12">'+  vote.view_cnt +'</td>';
+									body += '</tr>';
+				        		}else{
+				        			
+				        			if(sessionInfo.party_level != 999999999){
+				        				// PC
+				        				body += '<tr>';
+						        		body += '	<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i )) + '</td>';
+						        		if(diffDay > 1){
+							        		body += '	<td><span class="badge badge-primary badge-sm">진행중</span></td>';
+						        		}else{
+							        		body += '	<td><span class="badge badge-secondary badge-sm">마감입박</span></td>';
+						        		}
+										body += '	<td class="text-left"><a href="javascript:void(0)" class="detailView" data-vote-idx="' + vote.vote_idx + '">'+ vote.vote_title +'</a></td>';
+										body += '	<td>'+  vote.reg_id +'</td>';
+										body += '	<td class="font12">'+  vote.start_dt +'~' + vote.end_dt +'</td>';
+										body += '	<td class="font12">D-'+  diffDay +'</td>';
+										body += '	<td class="font12">'+  vote.view_cnt +'</td>';
+										body += '</tr>';
+					        		}else{
+					        			// PC
+					        			body += '<tr>';
+										body += '	<td class="funcAdm"><input type="checkbox" class="vote-idx-check" value="' + vote.vote_idx + '"></td>';
+										body += '	<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i )) + '</td>';
+						        		if(diffDay > 1){
+							        		body += '	<td><span class="badge badge-primary badge-sm">진행중</span></td>';
+						        		}else{
+							        		body += '	<td><span class="badge badge-secondary badge-sm">마감입박</span></td>';
+						        		}
+										body += '	<td class="text-left"><a href="javascript:void(0)" class="detailView" data-vote-idx="' + vote.vote_idx + '">'+ vote.vote_title +'</a></td>';
+										body += '	<td>'+  vote.reg_id +'</td>';
+										body += '	<td class="font12">'+  vote.start_dt +'~' + vote.end_dt +'</td>';
+										body += '	<td class="font12">D-'+  diffDay +'</td>';
+										body += '	<td class="font12">'+  vote.view_cnt +'</td>';
+										body += '</tr>';
+					        		}
+				        		}
+				        	}
+				        	
+			        	}else{
+			        		
+		        			var colspan = 8;
+			        		if(sessionInfo == null){
+			        			colspan = 7;
+			        		}else{
+			        			
+				        		if(sessionInfo.party_level != 999999999){
+				        			colspan = 7;
+				        		}
+			        		}
+		        			
+			        		// PC
+			        		body += '<tr>';
+			        		body += '	<td colspan="'+colspan+'" style="text-align:center">게시글이 존재하지 않습니다.</td>'
+			        		body += '<tr>';
+			        	}
+			        	$('#pop1 #listBody').html(body);
+			        	paging(total, page, '#pop1 #pagingPC');
+			        	
+			        	if(mList.length > 0){
+			        		
+				        	for(var i=0; i<mList.length; i++){
+				        		
+				        		var vote = mList[i];
+				        		
+				        		if(i == 0){
+				        			vote_idx = vote.vote_idx;
+				        		}
+				        		
+				        		if(vote.vote_title.length > 40){
+			        				vote.vote_title = vote.vote_title.substr(0, 40) + "...";
+			        			}
+				        		
+				        		var diffDay = dateDiff(vote.end_dt);
+				        		var statusMsg = '마감임박';
+				        		if(diffDay != 1){
+				        			statusMsg = '진행중';
+				        		}
+				        		
+				        		// MOBILE
+								mBody += '<tr>';
+								mBody += '	<td style="font-size: 14px;">';
+								mBody += '		[' + statusMsg + ']<a href="javascript:void(0)" class="detailView" data-vote-idx="' + vote.vote_idx + '">'+ vote.vote_title +'</a><br/>';
+								mBody += '		<span class="font12 grayC">';
+								mBody += '			<i class="fas fa-user"></i> ' + vote.reg_id + '&nbsp;&nbsp;&nbsp;';
+								mBody += '			<i class="far fa-calendar-minus"></i> ' + vote.start_dt + '~' + vote.end_dt + ' &nbsp;&nbsp;&nbsp;';
+								mBody += '			<i class="far fa-eye"></i> ' + vote.view_cnt + ' &nbsp;&nbsp;&nbsp';
+								mBody += '			<i class="far fa-clock"></i> D-' + diffDay;
+								mBody += '		</span>';
+								mBody += '	</td>';
+								mBody += '</tr>';
+				        		
+				        	}
+				        	
+			        	}else{
+			        		
+			        		// MOBILE
+			        		mBody += '<tr>';
+			        		mBody += '		<td style="font-size: 14px;text-align:center">';
+			        		mBody += '			게시글이 존재하지 않습니다.';
+			        		mBody += '		</td>';
+							mBody += '<tr>';
+			        	}
+			        	
+			        	$('#pop1 #listBodyMobile').html(mBody);
+			        	paging(total, page, '#pop1 #pagingMOBILE');
+			        
+			        // 투표 마감된 안건
+	        		}else{
+	        			
+						if(list.length > 0){
+			        		
+			        		dataPerPage = 10;
+			        		
+				        	for(var i=0; i<list.length; i++){
+				        		
+				        		var vote = list[i];
+				        		
+				        		if(i == 0){
+				        			vote_idx = vote.vote_idx;
+				        		}
+				        		
+				        		if(vote.vote_title.length > 40){
+			        				vote.vote_title = vote.vote_title.substr(0, 40) + "...";
+			        			}
+				        		
+				        		var voteMsg = '부결';
+			        			var fontColor = 'txtRed';
+			        			if(parseInt(vote.votepercent) >= 50 && parseInt(vote.ypercent) >= 50){
+			        				voteMsg = '가결';
+			        				fontColor = 'txtBlue';
+			        			}
+			        			// PC
+		        				body += '<tr>';
+				        		body += '	<td class="font12">' + (total - ( ((page-1)*dataPerPage)+i )) + '</td>';
+				        		body += '	<td><span class="badge badge-dark badge-sm">마감</span></td>';
+								body += '	<td class="text-left"><a href="javascript:void(0)" class="detailView" data-vote-idx="' + vote.vote_idx + '">'+ vote.vote_title +'</a></td>';
+								body += '	<td>'+  vote.reg_id +'</td>';
+								body += '	<td class="font12">'+ vote.end_dt +'</td>';
+								body += '	<td class="font12">' + vote.votepercent + '% / <span class="' + fontColor + '">' + vote.ypercent + '%</span></td>';
+								body += '	<td class="font12 ' + fontColor + '">'+  voteMsg +'</td>';
+								body += '	<td class="font12">'+  vote.view_cnt +'</td>';
+								body += '</tr>';
+				        	}
+				        	
+			        	}else{
+			        		
+		        			var colspan = 9;
+			        		if(sessionInfo == null){
+			        			colspan = 8;
+			        		}else{
+			        			
+				        		if(sessionInfo.party_level != 999999999){
+				        			colspan = 8;
+				        		}
+			        		}
+		        			
+			        		// PC
+			        		body += '<tr>';
+			        		body += '	<td colspan="'+colspan+'" style="text-align:center">게시글이 존재하지 않습니다.</td>'
+			        		body += '<tr>';
+			        	}
+			        	$('#pop2 #listBody').html(body);
+			        	paging(total, page, '#pop2 #pagingPC');
+			        	
+			        	if(mList.length > 0){
+			        		
+				        	for(var i=0; i<mList.length; i++){
+				        		
+				        		var vote = mList[i];
+				        		
+				        		if(i == 0){
+				        			vote_idx = vote.vote_idx;
+				        		}
+				        		
+				        		if(vote.vote_title.length > 40){
+			        				vote.vote_title = vote.vote_title.substr(0, 40) + "...";
+			        			}
+				        		
+				        		var voteMsg = '부결';
+			        			var fontColor = 'txtRed';
+			        			if(parseInt(vote.votepercent) >= 50 && parseInt(vote.ypercent) >= 50){
+			        				voteMsg = '가결';
+			        				fontColor = 'txtBlue';
+			        			}
+				        		
+				        		// MOBILE
+								mBody += '<tr>';
+								mBody += '	<td style="font-size: 14px;">';
+								mBody += '		<span class="' + fontColor + '">[' + voteMsg + ']</span><a href="javascript:void(0)" class="detailView" data-vote-idx="' + vote.vote_idx + '">'+ vote.vote_title +'</a><br/>';
+								mBody += '		<span class="font12 grayC">';
+								mBody += '			<i class="fas fa-user"></i> ' + vote.reg_id + '&nbsp;&nbsp;&nbsp;';
+								mBody += '			<i class="far fa-calendar-minus"></i> ' + vote.start_dt + '~' + vote.end_dt + ' &nbsp;&nbsp;&nbsp;';
+								mBody += '			<i class="far fa-vote-yea"></i> 투표율 : '+vote.votepercent+'% ('+ (parseInt(vote.ycnt) + parseInt(vote.ncnt)) +')  &nbsp;&nbsp;&nbsp;';
+								mBody += '			<i class="far fa-vote-yea"></i> 찬성/반대 : '+vote.ypercent+'%('+vote.ycnt+') / '+vote.npercent+'%('+vote.ncnt+')<br/>';
+								mBody += '		</span>';
+								mBody += '	</td>';
+								mBody += '</tr>';
+				        		
+				        	}
+				        	
+			        	}else{
+			        		
+			        		// MOBILE
+			        		mBody += '<tr>';
+			        		mBody += '		<td style="font-size: 14px;text-align:center">';
+			        		mBody += '			게시글이 존재하지 않습니다.';
+			        		mBody += '		</td>';
+							mBody += '<tr>';
+			        	}
+			        	
+			        	$('#pop2 #listBodyMobile').html(mBody);
+			        	paging(total, page, '#pop2 #pagingMOBILE');
+	        			
+	        		}
+	        		
+	        		// 상세보기 이벤트 추가
+		        	$('.detailView').off('click').on('click', detailView);
+		        	
+		        },
+		        error:function(response, status, error) {
+		            alert('list error.' + error);
+		        }
+		    });
+    	}
+		
+		// 페이징(PC/MOBILE)
+		var paging = function(totalData, currentPage, target){
+        	
+			// PC
+            var totalPage = Math.ceil(totalData/dataPerPage);    // 총 페이지 수
+            var pageGroup = Math.ceil(currentPage/pageCount);    // 페이지 그룹
+            
+            var last = pageGroup * pageCount;    // 화면에 보여질 마지막 페이지 번호
+            if(last > totalPage){
+                last = totalPage;
+            }
+            
+            var first = last - (pageCount-1);    // 화면에 보여질 첫번째 페이지 번호
+            if(first < 0){
+            	first = 1;
+            }
+            
+            var next = last+1;
+            var prev = first-1;
+            
+            var html = '<ul class="pagination">';
+            if(prev > 0){
+                html += '<li class="page-item"><a class="page-link" href="javascript:list(' + prev + ')" id="prev"><i class="fas fa-angle-left"></i></a></li>';
+            }
+            
+            for(var i=first; i <= last; i++){
+            	if(i != currentPage){
+                	html += '<li class="page-item"><a class="page-link" href="javascript:list(' + i + ')" id="'+i+'">'+i+'</a></li>';
+            	}else{
+                	html += '<li class="page-item active"><a class="page-link" href="javascript:list(' + i + ')" id="'+i+'">'+i+'</a></li>';
+            	}
+            }
+            
+            if(last < totalPage){
+               	html += '<li class="page-item"><a class="page-link" href="javascript:list(' + next + ')" id="next"><i class="fas fa-angle-right"></i></a></li>';
+            }
+            html += '</ul>';
+            
+            $(target).html(html);    // PC/MOBILE 페이지 목록 생성
+        }
+		
+		// 오늘날짜 기준 종료일 Diff계산
+		var dateDiff = function(end_dt){
+			
+			var today = new Date();
+			console.log('today : ' + today);
+			var endArr = end_dt.split('.');
+			console.log('endAdrr : ' + endArr);
+			var dt = new Date(endArr[0], endArr[1]-1, endArr[2]);
+			console.log('dt : ' + dt);
+			var diff = dt - today;
+			var dayMilliSec = 1000 * 60 * 60 * 24;
+			
+			return parseInt(diff / dayMilliSec); 
+		}
+		
+		// 전체선택
+		var allCheckVote = function(){
+			//만약 전체 선택 체크박스가 체크된상태일경우 
+			if($("#allCheck").prop("checked")) { 
+				//해당화면에 전체 checkbox들을 체크해준다 
+				$(".vote-idx-check").prop("checked",true); 
+				// 전체선택 체크박스가 해제된 경우 
+			}else { 
+				//해당화면에 모든 checkbox들의 체크를해제시킨다. 
+				$(".vote-idx-check").prop("checked",false); 
+			} 
+		}
+
+		// 목록에서 삭제
+		var deleteVote = function(){
+			
+			var delete_vote_idx_list = [];
+			$(".vote-idx-check").each(function(index, data){
+				if($(this).prop('checked')){
+					delete_vote_idx_list.push($(this).val());
+				}
+			});
+			
+			// validataion
+			if(delete_vote_idx_list.length == 0){
+				alert('삭제할 목록을 선택해주세요.');
+				return;
+			}
+			
+			if(confirm('삭제하시겠습니까?')){
+				
+				var formData = new FormData();
+				formData.append('delete_vote_idx_list', delete_vote_idx_list.toString());
+				
+				$.ajax({
+			        type:"POST",
+			        url:"/admin/vote/deleteVote",	    
+			        data: formData,
+			        processData: false,
+		            contentType: false,
+			        success:function(response) {
+						if(response.result == 'success'){
+							alert('삭제 성공.');
+							list(1);
+						} else{
+							alert('삭제 실패.');
+						}        	
+			        },
+			        error:function(response, status, error) {
+			            alert('deleteVote error.' + error);
+			        }
+			    });
+			}
+			
+		}
+
+		// 등록
+		var btnRegistrationVote = function(){
+			$('#vote_idx').val(0);
+			$('#mainForm').attr('method','POST');
+			$('#mainForm').attr('action', '/admin/vote/write').submit();
+		}
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="1"><!-- 페이징 유지 -->
+			<input type="hidden" id="vote_idx" name="vote_idx" th:value="0">
+			<input type="hidden" id="status" name="status" th:value="${param.status}">
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_11.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				투표
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 당원 &gt; 투표
+				</div>
+			</div>
+
+			
+			<section class=" ">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 text-center ">
+							<nav class="nav-justified ">
+								<div class="nav nav-tabs " id="nav-tab" role="tablist">
+									<a class="nav-item nav-link active" id="pop1-tab" data-toggle="tab" href="#pop1" role="tab" aria-controls="pop1" aria-selected="true" data-status="I">투표 진행중인 안건</a>
+									<a class="nav-item nav-link" id="pop2-tab" data-toggle="tab" href="#pop2" role="tab" aria-controls="pop2" aria-selected="false" data-status="E">투표 마감된 안건</a>
+
+								</div>
+							</nav>
+							<div class="tab-content text-left" id="nav-tabContent">
+								<div class="tab-pane fade show active" id="pop1" role="tabpanel" aria-labelledby="pop1-tab" data-status="I">
+									
+									<!-- web -->		
+									<div class="d-none d-sm-none d-md-none d-lg-block">
+										<table class="table text-center">
+											<thead>
+												<tr>
+													<th class="funcAdm"><input type="checkbox" id="allCheck"></th>
+													<th>번호</th>
+													<th>상태</th>
+													<th>제목</th>
+													<th>작성자</th>
+													<th>등록일/마감일</th>
+													<th>남은 일수</th>
+													<th>조회수</th>
+												</tr>
+											</thead>
+											<tbody id="listBody"></tbody>
+										</table>
+
+										<!-- 글쓰기 -->
+										<hr class="solid">
+										<div class="row">
+											<div class="col-12 text-right">
+												<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnRegistration" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">글 쓰기</button>
+												<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnDelete" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">선택 글 삭제</button>
+											</div>
+										</div>
+										<!-- 글쓰기 끝 -->
+
+										<div class="row justify-content-center" id="pagingPC"></div><!-- PC Paging -->
+
+										<div class="row justify-content-center">
+											<div class="col-lg-5">
+												<div class="input-group">
+													<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요" id="searchWord" name="searchWord">
+													<div class="input-group-append">
+													<button class="btn btn-primary btnSearch" type="button">
+													<i class="fa fa-search"></i>
+													</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									
+									
+									
+									<!-- mobile -->
+									<div class="d-block d-sm-block d-md-block d-lg-none">
+										<table class="table">
+											<tbody id="listBodyMobile"></tbody>
+										</table>
+
+										<!-- 글쓰기 -->
+										<hr class="solid">
+										<div class="row">
+											<div class="col-12 text-center">
+												<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnRegistration" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">글 쓰기</button>
+												<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnDelete" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">선택 글 삭제</button>
+											</div>
+										</div>
+										<!-- 글쓰기 끝 -->
+
+										<div class="row justify-content-center" id="pagingMOBILE"></div><!-- MOBILE Paging -->
+
+										<div class="row justify-content-center">
+											<div class="col-lg-5">
+												<div class="input-group">
+													<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요">
+													<div class="input-group-append">
+													<button class="btn btn-primary btnSearch" type="button">
+													<i class="fa fa-search"></i>
+													</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									
+
+								</div>
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								<div class="tab-pane fade" id="pop2" role="tabpanel" aria-labelledby="pop2-tab" data-status="E">
+									
+									<div class="d-none d-sm-none d-md-none d-lg-block">
+										<table class="table text-center">
+										<thead>
+											<tr>
+												<th>번호</th>
+												<th>상태</th>
+												<th>제목</th>
+												<th>작성자</th>
+												<th>마감일</th>
+												<th>투표율/찬성율</th>
+												<th>결과</th>
+												<th>조회수</th>
+											</tr>
+										</thead>
+										<tbody id="listBody"></tbody>
+									</table>
+
+									<!-- 글쓰기 -->
+									<hr class="solid">
+									<!-- 글쓰기 끝 -->
+
+									<div class="row justify-content-center" id="pagingPC"></div><!-- PC Paging -->
+
+									<div class="row justify-content-center">
+										<div class="col-lg-5">
+											<div class="input-group">
+												<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요" id="searchWord" name="searchWord">
+												<div class="input-group-append">
+												<button class="btn btn-primary btnSearch" type="button">
+												<i class="fa fa-search"></i>
+												</button>
+												</div>
+											</div>
+										</div>
+									</div>
+									</div>
+									
+									
+									
+									
+									
+									
+									
+									<!-- mobile -->
+									<div class="d-block d-sm-block d-md-block d-lg-none">
+										<table class="table">
+											<tbody id="listBodyMobile"></tbody>
+										</table>
+
+										<!-- 글쓰기 -->
+										<hr class="solid">
+										<!-- 글쓰기 끝 -->
+
+										<div class="row justify-content-center" id="pagingMOBILE"></div><!-- MOBILE Paging -->
+
+										<div class="row justify-content-center">
+											<div class="col-lg-5">
+												<div class="input-group">
+													<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요">
+													<div class="input-group-append">
+													<button class="btn btn-primary btnSearch" type="button">
+													<i class="fa fa-search"></i>
+													</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									
+									
+									
+									
+									
+
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			
+			
+			<section class=" ">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 text-center ">
+							
+							
+							
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+		<!-- 
+			<h1>Error Page</h1>
+		    error code : <span th:text="${code}"></span>
+		    <br>error msg : <span th:text="${msg}"></span>
+		    <br>timestamp : <span th:text="${timestamp}"></span><br>
+		 -->
+		    <img th:src="@{${'https://http.cat/' + code}}" style="width:100%"/>
+		</div>
+		<!-- 본문 끝 -->
+		
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+	
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

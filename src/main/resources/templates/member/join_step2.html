@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		$(document).ready(function(){
+			$('#btnMobileCert').off('click').on('click', jsSubmit);
+		});
+		
+		<!--
+		function jsSubmit(){
+			window.open("", "auth_popup", "width=430,height=640,scrollbar=yes");
+			var mainForm = document.mainForm;
+			mainForm.target = "auth_popup";
+			mainForm.submit();
+		}
+		//-->
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm" name="mainForm" action="/mobile/cert/phone_popup2">
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+			
+		<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_01.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+			당원 가입
+		</div>
+		
+		<div class="container">
+			<div class="col-12 borderBottom" >
+				<i class="fas fa-home"></i> &gt; 당원가입 &gt; 	본인 인증
+			</div>
+		</div>
+
+		
+		<div class="col-12">
+			<div class="row justify-content-center" style="margin-top:70px; ">
+				<div class="col-lg-6 text-center">
+					
+							<img src="/img/member/complete_icon_00.png"><br/><br/>
+							
+							<div style="font-size: 18px; line-height: 34px;">
+							본인명의의 휴대폰으로 인증번호를 전송받아 본인인증을 하실 수 있습니다.<br/>
+							인증이 완료된 휴대폰번호는 회원정보에 저장됩니다.
+							</div>
+							
+							<hr/>
+							
+							<div>
+							위 본인명의 인증은 팝업창에서 이루어집니다. <br/>
+							팝업차단이 되어 있으신 분은 팝업차단을 해제해 주세요.
+							</div>
+							
+							<hr/>
+
+
+						<div style="margin:40px 0 0 0;">
+							<a href="javascript:void(0);" class="btn btn-outline btn-rounded btn-primary mb-2" id="btnMobileCert">본인 인증하기</a>
+							<a href="/index" class="btn btn-outline btn-rounded btn-dark mb-2" id="btnCancel">취소하기</a>
+						</div>
+
+
+
+					
+				</div>
+
+			</div>
+		</div>
+			
+		</div>
+		<!-- 본문 끝 -->
+		</form>
+		
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+	
+</body>
+
+</html>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="notice">
+	
+	<!-- dp_notice 카운트 -->
+	<select id="selectNoticeListCount" parameterType="com.party.dto.Notice" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM dp_notice 
+		WHERE notice_type = #{notice_type}
+		<if test="searchWord != null and searchWord != ''">
+			AND (notice_title like CONCAT('%', #{searchWord}, '%') || notice_content like CONCAT('%', #{searchWord}, '%'))
+		</if>
+	</select>
+	
+	<!-- dp_notice 목록조회 -->
+	<select id="selectNoticeList" parameterType="com.party.dto.Notice" resultType="com.party.dto.Notice">
+		SELECT 
+			notice_idx		
+			,notice_type	
+			,division		
+			,notice_title	
+			,notice_content	
+			,view_cnt		
+			,reg_id			
+			,DATE_FORMAT(reg_dt, '%y.%m.%d - %p %h:%i') AS reg_dt			
+			,mod_id			
+			,DATE_FORMAT(mod_dt, '%y.%m.%d - %p %h:%i') AS mod_dt
+		FROM dp_notice 
+		WHERE notice_type = #{notice_type}
+		<if test="searchWord != null and searchWord != ''">
+			AND (notice_title like CONCAT('%', #{searchWord}, '%') || notice_content like CONCAT('%', #{searchWord}, '%'))
+		</if>
+		ORDER BY notice_idx DESC
+		LIMIT #{start},#{dataPerPage}
+	</select>
+	
+	<!-- dp_notice 단건조회 -->
+	<select id="selectNotice" parameterType="com.party.dto.Notice" resultType="com.party.dto.Notice">
+		SELECT 
+			 a.notice_idx		
+			,a.notice_type	
+			,a.division		
+			,a.notice_title	
+			,a.notice_content	
+			,a.view_cnt		
+			,a.reg_id			
+			,DATE_FORMAT(a.reg_dt, '%y.%m.%d - %p %h:%i') AS reg_dt		
+			,a.mod_id			
+			,DATE_FORMAT(a.mod_dt, '%y.%m.%d - %p %h:%i') AS mod_dt
+			,real_file_name_list
+			,upload_file_path_list
+		FROM dp_notice a
+		LEFT OUTER JOIN (
+			SELECT 
+				parent_idx
+				,GROUP_CONCAT(attach_idx ORDER BY attach_idx ASC) attach_idx_list
+				,GROUP_CONCAT(real_file_name ORDER BY attach_idx ASC) real_file_name_list
+				,GROUP_CONCAT(upload_file_path ORDER BY attach_idx ASC) upload_file_path_list
+			FROM dp_attach
+			WHERE notice_type = #{notice_type} 
+			GROUP BY parent_idx
+		) b ON(a.notice_idx = b.parent_idx)
+		WHERE 1=1
+		AND notice_idx = #{notice_idx}
+	</select>
+	
+	<!-- dp_notice 조회수 업데이트 -->
+	<update id="updateNotice" parameterType="com.party.dto.Notice" >
+		UPDATE dp_notice SET
+			view_cnt = view_cnt + 1
+		WHERE notice_idx = #{notice_idx}
+	</update>
+	
+	<!-- 논평 목록조회 -->
+	<select id="selectCommentList" parameterType="com.party.dto.Notice" resultType="com.party.dto.Notice">
+		SELECT
+			n.notice_idx		
+			,n.notice_type	
+			,n.division		
+			,n.notice_title	
+			,n.notice_content	
+			,n.view_cnt		
+			,n.reg_id			
+			,DATE_FORMAT(n.reg_dt, '%y.%m.%d - %p %h:%i') AS reg_dt			
+			,n.mod_id			
+			,DATE_FORMAT(n.mod_dt, '%y.%m.%d - %p %h:%i') AS mod_dt
+			,a.attach_idx
+			,a.parent_idx
+			,a.real_file_name
+			,a.upload_file_path
+		FROM dp_notice n
+		LEFT OUTER JOIN
+		(
+			SELECT 
+				notice_idx
+				,min(attach_idx) AS attach_idx
+				,parent_idx
+				,real_file_name
+				,upload_file_path
+			FROM dp_notice, dp_attach
+			WHERE dp_notice.notice_idx = dp_attach.parent_idx
+			AND dp_notice.notice_type=#{notice_type}
+			GROUP BY dp_notice.notice_idx
+		) a
+		ON a.notice_idx=n.notice_idx 
+		WHERE n.notice_type=#{notice_type}
+		<if test="searchWord != null and searchWord != ''">
+			AND (notice_title like CONCAT('%', #{searchWord}, '%') || notice_content like CONCAT('%', #{searchWord}, '%'))
+		</if>
+		ORDER BY n.notice_idx DESC
+		LIMIT #{start},#{dataPerPage}
+	</select>
+
+	<!-- dp_notice 삭제 -->
+	<delete id="deleteNotice" parameterType="com.party.dto.Notice" >
+		DELETE FROM dp_notice 
+		<where>
+	    <foreach collection="list" item="notice_idx" open="" close="" separator="OR">
+	        (notice_idx = #{notice_idx})
+	    </foreach>
+	    </where>
+	</delete>
+	
+	<!-- dp_notice 저장 -->
+	<insert id="insertNotice" parameterType="com.party.dto.Notice" >
+		INSERT INTO dp_notice(
+			 notice_type
+			 <if test="division != null and division != ''">,division</if>
+			,notice_title	
+			,notice_content	
+			,view_cnt
+			,reg_id			
+			,reg_dt 			
+			,mod_id			
+			,mod_dt
+		) VALUES (
+			#{notice_type}
+			<if test="division != null and division != ''">,#{division}</if>
+			,#{notice_title}
+			,#{notice_content}
+			,0
+			,#{reg_id}
+			,now()
+			,#{mod_id}
+			,now()
+		)
+		<selectKey keyProperty="notice_idx" order="AFTER" resultType="int">
+	  		select last_insert_id()
+	  	</selectKey>
+	</insert>
+	
+	<!-- dp_notice 수정 -->
+	<update id="updateNoticeA" parameterType="com.party.dto.Notice" >
+		UPDATE dp_notice SET
+			 notice_title = #{notice_title}	
+			,notice_content	= #{notice_content}
+			,mod_id	= #{mod_id}		
+			,mod_dt = now()
+		WHERE notice_idx = #{notice_idx}
+	</update>
+	
+	<!-- dp_notice 파일 저장 -->
+	<insert id="insertAttach" parameterType="com.party.dto.Attach">
+		INSERT INTO dp_attach(
+			notice_type
+			,parent_idx
+			,real_file_name
+			,upload_file_path
+			,reg_id
+			,reg_dt
+		)
+		values(
+			#{notice_type}
+			,#{parent_idx}
+			,#{real_file_name}
+			,#{upload_file_path}
+			,#{reg_id}
+			,now()
+		)
+	</insert>
+	
+	<!-- dp_attach 삭제 -->
+	<delete id="deleteAttach">
+		DELETE FROM dp_attach 
+		WHERE parent_idx = #{notice_idx}
+	</delete>
+	
+	
+</mapper>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		var notice = /*[[${notice}]]*/
+		
+		$(document).ready(function(){
+			// 관리자 기능 remove
+			if(/*[[${session.SESSION_INFO}]]*/ != null){
+				var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+				if(sessionInfo.party_level != 999999999){
+					$('.funcAdm').remove();
+				}else{
+					// 수정 버튼 
+					$('#btnModify').on('click', btnModify);
+					// 삭제 버튼
+					$('#btnDelete').on('click', deleteNoticeView);
+				}
+			}else{
+				$('.funcAdm').remove();
+			}
+			
+			$('#btnList').off('click').on('click', function(){
+				var url = '/news/notice';
+				$('#mainForm').attr('method','POST').attr('action', url).submit();
+			});
+			
+			loadAttachedFile();
+			setPage(/*[[${notice.notice_type}]]*/);
+		});
+		
+		var loadAttachedFile = function(){
+			var html = '';
+			if(notice.real_file_name_list != null){
+				var real_file_name_list = notice.real_file_name_list;
+				var upload_file_path_list = notice.upload_file_path_list;
+				
+				var real_arr = real_file_name_list.split(',');
+				var upload_arr = upload_file_path_list.split(',');
+				
+				for(var i=0; i<real_arr.length; i++){
+					if(i != 0){
+						html += '<br/>';
+					}
+					html += '<span style="color:darkcyan"><i class="fas fa-paperclip"></i> 첨부파일 #'+(i+1)+'</span>: <a href="/upload/download?fileName=' + upload_arr[i] + '_' + real_arr[i] + '">' + real_arr[i] + '</a>';
+				}
+				
+			}else{
+				html = '<span style="color:darkcyan"><i class="fas fa-paperclip"></i> 첨부파일 #</span>: 첨부파일이 없습니다.'
+			}
+			
+			$('#attachTd').html(html);
+			
+		}
+	</script>
+	
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="${param.page}">
+			<input type="hidden" id="notice_idx" name="notice_idx" th:value="${param.notice_idx}">
+			<input type="hidden" id="notice_type" name="notice_type" th:value="${param.notice_type}">
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_05.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				공지사항
+			</div>
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 소식&gt; 공지사항
+				</div>
+			</div>
+
+			<section class=" ">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 text-center ">
+							<table class="table text-left">
+								<thead>
+									<tr>
+										<th class="font20" style="padding:30px 0" th:text="${notice.notice_title}"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="background-color: #f6f6f6">
+											<i class="fas fa-user"></i> <span th:text="${notice.reg_id}"></span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-calendar-minus"></i> <span th:text="${notice.reg_dt}"></span>&nbsp;&nbsp;
+											<i class="far fa-eye"></i> <span th:text="${notice.view_cnt}"></span>&nbsp;&nbsp;											
+										</td>
+									</tr>
+									<tr>
+										<td style="background-color: #f6f6f6" id="attachTd"></td>
+									</tr>
+									<tr>
+										<td th:utext="${notice.notice_content}"></td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<!-- 글쓰기 -->
+							<hr class="solid">
+							<div class="row">
+								<div class="col-12 text-right">
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2"  style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnList">목록보기</a>
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2 funcAdm" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnModify">수정</a>
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2 funcAdm" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnDelete">삭제</a>
+								</div>
+							</div>
+							<!-- 글쓰기 끝 -->
+							
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

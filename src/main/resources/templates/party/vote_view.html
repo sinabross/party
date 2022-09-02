@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		var vote = /*[[${vote}]]*/
+		
+		$(document).ready(function(){
+			// 관리자 기능 remove
+			if(/*[[${session.SESSION_INFO}]]*/ != null){
+				var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+				if(sessionInfo.party_level != 999999999){
+					$('.funcAdm').remove();
+				}else{
+					// 수정 버튼 
+					$('#btnModify').on('click', btnModifyVote);
+					// 삭제 버튼
+					$('#btnDelete').on('click', deleteViewVote);
+				}
+			}else{
+				$('.funcAdm').remove();
+			}
+			
+			$('.btnVote').off('click').on('click', btnVote);
+			
+			
+			$('#btnList').off('click').on('click', function(){
+				var url = '/party/vote';
+				$('#mainForm #status').val('I');
+				$('#mainForm').attr('method','POST').attr('action', url).submit();
+			});
+		});
+		
+		//상세보기에서 삭제
+		var deleteViewVote = function(){
+			
+			if(confirm('삭제하시겠습니까?')){
+				
+				var delete_vote_idx_list = [];
+				delete_vote_idx_list.push($('#mainForm #vote_idx').val());
+				
+				var formData = new FormData();
+				formData.append('delete_vote_idx_list', delete_vote_idx_list.toString());
+				
+				$.ajax({
+			        type:"POST",
+			        url:"/admin/vote/deleteVote",	    
+			        data: formData,
+			        processData: false,
+		            contentType: false,
+			        success:function(response) {
+						if(response.result == 'success'){
+							alert('삭제 성공.');
+							var url = '/party/vote';
+							$('#mainForm #status').val('I');
+							$('#mainForm').attr('method','POST').attr('action', url).submit();
+						} else{
+							alert('삭제 실패.');
+						}        	
+			        },
+			        error:function(response, status, error) {
+			            alert('deleteViewVote error.' + error);
+			        }
+			    });
+			}
+			
+		}
+		
+		// 수정
+		var btnModifyVote = function(){
+			$('#mainForm').attr('method','POST');
+			$('#mainForm').attr('action', '/admin/vote/write').submit();
+		}
+		
+		// 투표
+		var btnVote = function(){
+			var voteYN = $(this).attr('data-vote');
+			// 투표했는지 체크
+			$.ajax({
+   		        type:'POST',
+   		        url:'/party/voting',
+   		        data: {
+   		        	'vote_idx' : vote.vote_idx,
+		        	'vote' : voteYN
+   		        },
+   		        cache: false,
+   		        success:function(response) {
+   		        	
+					if(response.result == 'success'){
+						alert('정상적으로 투표에 참여했습니다.');
+						return;
+					}else if(response.result == 'completed'){
+						alert('이미 투표에 참여했습니다.');
+						return;
+					}else if(response.result == 'no-session'){
+						alert(response.msg);
+						location.href = '/login';
+						return;
+					}else{
+						alert(response.msg);
+					}
+					
+   		        },
+   		        error:function(response, status, error) {
+   		            alert('/party/vote/voting error.' + error);
+   		        }
+   		    });
+		}
+		
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="${param.page}">
+			<input type="hidden" id="vote_idx" name="vote_idx" th:value="${param.vote_idx}">
+			<input type="hidden" id="status" name="status" th:value="${param.status}">
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_11.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				투표
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 당원 &gt; 투표
+				</div>
+			</div>
+
+			<section class=" ">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 text-center ">
+							<table class="table text-left">
+								<thead>
+									<tr>
+										<th class="font20" style="padding:30px 0" th:text="${vote.vote_title}"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="background-color: #f6f6f6">
+											<i class="fas fa-user"></i> <span th:text="${vote.reg_id}">홍길동</span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-calendar-minus"></i> 등록일 : <span th:text="${vote.start_dt}"></span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-calendar-minus"></i> 마감일 : <span th:text="${vote.end_dt}"></span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-eye"></i> <span th:text="${vote.view_cnt}"></span> &nbsp;&nbsp;											
+										</td>
+									</tr>
+									<!-- 
+									<tr>
+										<td style="background-color: #f6f6f6">
+											<span style="color:darkcyan"><i class="fas fa-paperclip"></i> 첨부파일 #1</span>: <a href="#">AW20191126_토론회자료집_국회개혁필요성과대안모색토론회.pdf</a><br/>
+											<span style="color:darkcyan"><i class="fas fa-paperclip"></i> 첨부파일 #2</span>: 첨부파일이 없습니다.
+										</td>
+									</tr>
+									 -->
+									<tr>
+										<td th:utext="${vote.vote_content}"></td>
+									</tr>
+									<tr>
+										<td class="text-center">
+											<button type="button" class="btn btn-primary btn-xl mb-2 btnVote" data-vote="Y">찬성</button>
+											<button type="button" class="btn btn-danger btn-xl mb-2 btnVote" data-vote="N">반대</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<!-- 글쓰기 -->
+							<hr class="solid">
+							<div class="row">
+								<div class="col-12 text-right">
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnList">목록보기</a>
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2 funcAdm" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnModify">수정</a>
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2 funcAdm" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnDelete">삭제</a>
+								</div>
+							</div>
+							<!-- 글쓰기 끝 -->
+							
+
+							
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

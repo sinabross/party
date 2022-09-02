@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+			
+		<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_01.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+			비밀번호 찾기
+		</div>
+		
+		<div class="container">
+			<div class="col-12 borderBottom" >
+				<i class="fas fa-home"></i> &gt; 비밀번호 찾기
+			</div>
+		</div>
+
+		
+		<div class="col-12">
+			<div class="row justify-content-center" style="margin-top:70px; ">
+				<div class="col-5">
+					<form>
+						<div class="form-group">
+							<label>ID:</label>
+							<input type="text" class="form-control">
+							<small class="form-text text-muted">회원아이디는 회원가입시 등록된 이메일 주소입니다.</small>
+						</div>
+						<div class="form-group">
+							<label>이름:</label>
+							<input type="text" class="form-control">
+						</div>		
+
+
+
+						<div style="margin:40px 0 0 0;">
+							<button type="button" onclick="location.href='findPW_result.html'"  class="btn btn-outline btn-rounded btn-primary mb-2 btn-block">임시 비밀번호 전송하기</button>
+						</div>
+
+						<div class="signChkBox" style="margin-bottom: 60px;">
+							 이메일로 임시 비밀번호가 전송됩니다.
+						</div>
+
+		
+					</form>
+				</div>
+
+			</div>
+		</div>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</div>
+		<!-- 본문 끝 -->
+		
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+
+</body>
+
+</html>

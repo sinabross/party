@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		$(document).ready(function(){
+			$('#btnAgree').off('click').on('click', agreeSubmit);
+		});
+		
+		var agreeSubmit = function(){
+			$('#mainForm #agreeYN').val('Y');
+			$('#mainForm').attr('method','POST');
+			$('#mainForm').attr('action', '/member/join_step2').submit();
+		}
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+		<input type="hidden" id="agreeYN" name="agreeYN">
+		
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+			
+		<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_01.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+			당원 가입
+		</div>
+		
+		<div class="container">
+			<div class="col-12 borderBottom" >
+				<i class="fas fa-home"></i> &gt; 당원가입 &gt; 약관동의
+			</div>
+		</div>
+
+		
+		<div class="col-12">
+			<div class="row justify-content-center" style="margin-top:70px; ">
+				<div class="col-lg-5">
+					
+					<div class="accordion" id="accordion">
+							<div class="card card-default">
+								<div class="card-header">
+									<h4 class="card-title m-0">
+										<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1One">
+											당원 가입 자격
+										</a>
+									</h4>
+								</div>
+								<div id="collapse1One" class="collapse show">
+									<div class="card-body">
+										<p class="mb-0" style="height:300px; overflow: scroll; font-size: 13px;">
+											[정당법]<br/><br/>
+
+											제4장 정당의 입당ㆍ탈당<br/>
+											제22조(발기인 및 당원의 자격)<br/><br/>
+
+											① 국회의원 선거권이 있는 자는 공무원 그 밖에 그 신분을 이유로 정당가입이나 정치활동을 금지하는 다른 법령의 규정에 불구하고 누구든지 정당의 발기인 및 당원이 될 수 있다.<br/>
+											다만, 다음 각 호의 어느 하나에 해당하는 자는 그러하지 아니하다. (개정 2011.7.21., 2012.2.29., 2013.12.30.)<br/>
+												1. 「국가공무원법」 제2조(공무원의 구분) 또는 「지방공무원법」 제2조(공무원의 구분)에 규정된 공무원. 다만, 대통령, 국무총리, 국무위원, 국회의원, 지방의회의원, 선거에 의하여 취임하는 지방자치단체의 장, 국회 부의장의 수석비서관·비서관·비서·행정보조요원, 국회 상임위원회·예산결산특별위원회·윤리특별위원회 위원장의 행정보조요원, 국회의원의 보좌관·비서관·비서, 국회 교섭단체대표의원의 행정비서관, 국회 교섭단체의 정책연구위원·행정보조요원과 「고등교육법」 제14조(교직원의 구분)제1항·제2항에 따른 교원은 제외한다.<br/>
+												2. 「고등교육법」 제14조제1항·제2항에 따른 교원을 제외한 사립학교의 교원<br/>
+												3. 법령의 규정에 의하여 공무원의 신분을 가진 자<br/>
+												②대한민국 국민이 아닌 자는 당원이 될 수 없다.<br/><br/>
+
+												제6장 정당활동의 보장<br/>
+												제42조(강제입당 등의 금지)<br/>
+												① 누구든지 본인의 자유의사에 의하는 승낙 없이 정당가입 또는 탈당을 강요당하지 아니한다. <br/>
+												다만, 당원의 제명처분은 그러하지 아니하다.<br/>
+												②누구든지 2개 이상의 정당의 당원이 되지 못한다.
+											
+										</p>
+									</div>
+								</div>
+							</div>
+							<div class="card card-default">
+								<div class="card-header">
+									<h4 class="card-title m-0">
+										<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1Two">
+											개인정보 수집 안내
+										</a>
+									</h4>
+								</div>
+								<div id="collapse1Two" class="collapse">
+									<div class="card-body">
+										<p class="mb-0">개인정보 수집안내 텍스트</p>
+									</div>
+								</div>
+							</div>
+						</div>				
+
+
+
+						<div style="margin:40px 0 0 0;">
+							<a href="javascript:void(0);" class="btn btn-outline btn-rounded btn-primary mb-2 btn-block" id="btnAgree">상기 약관에 동의합니다</a>
+						</div>
+
+
+						<div class="" style="margin:60px 0 100px;">
+							<div style="color:#999; font-size: 18px; margin-bottom: 5px;"><img src="/img/member/m_icon_01.png" width="22" style="margin-bottom:3px;"> 약관에 동의해주세요</div>
+							<div style="color:#999; font-size: 13px; margin-bottom: 30px;">
+							약관에 동의하지 않을 경우, 규제개혁당의 당원으로 가입하실 수 없습니다.</div>
+
+						</div>
+					
+				</div>
+
+			</div>
+		</div>
+		</div>
+		<!-- 본문 끝 -->
+		</form>
+		
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+
+</body>
+
+</html>

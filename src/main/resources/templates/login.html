@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+	var DEFAULT_LOGIN_URL = '/';
+	
+	$(document).ready(function(){
+		
+		$('#btnLogin').off('click').on('click', loginProcess);
+		
+		$('#party_id').focus();
+		
+		$("#party_pwd").on("keydown", function(event) {
+		    if (event.which == 13 || event.keyCode == 13) {
+		        loginProcess();
+		    }
+		});
+		
+		if(localStorage.getItem('checked')){
+			$('#party_id').val(localStorage.getItem('party_id'));
+			$('input:checkbox[id="chkSaveId"]').prop('checked', true);
+		}else{
+			$('input:checkbox[id="chkSaveId"]').prop('checked', false);
+		}
+		
+		
+	});
+
+	var loginProcess = function(){
+		
+		// checkbox가 선택되어 있으면 id 저장
+		// checkbox가 선택되어 있지 않으면 id삭제
+		if($('input:checkbox[id="chkSaveId"]').is(":checked")){
+			localStorage.setItem('checked', true);
+			localStorage.setItem('party_id', $('#party_id').val());
+		}else{
+			localStorage.removeItem('checked');
+			localStorage.removeItem('party_id');
+		}
+		
+		if($.trim($('#party_id').val()) == ''){
+			alert('아이디를 입력하세요.');
+			$('#party_id').focus();
+			return;
+		}
+		
+		if($.trim($('#party_pwd').val()) == ''){
+			alert('패스워드를 입력하세요.');
+			$('#party_pwd').focus();
+			return;
+		}
+		
+		var data = $('#loginForm').serialize();
+		$.ajax({
+	        type:"POST",
+	        url:"/loginProcess",
+	        data: data,
+	        success:function(response) {
+	        	var result = JSON.parse(response);
+	        	if(result.success){
+	        		location.href = DEFAULT_LOGIN_URL;
+	        	}else{
+	        		alert('아이디 또는 패스워드를 확인하세요.');
+	        	}
+	        },
+	        error:function(response, status, error) {
+	        	alert('loginProcess error.' + error);
+	        }
+	    });
+		
+	};	
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+			
+		<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_01.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+			로그인
+		</div>
+		
+		<div class="container">
+			<div class="col-12 borderBottom" >
+				<i class="fas fa-home"></i> &gt; 로그인
+			</div>
+		</div>
+
+		<form id="loginForm">
+		<div class="col-12">
+			<div class="row justify-content-center" style="margin-top:70px; ">
+				<div class="col-lg-4">
+						<div class="form-group">
+							<label>ID:</label>
+							<input type="text" class="form-control" id="party_id" name="party_id">
+							<small class="form-text text-muted">당원 아이디는 당원 가입시 등록된 이메일 주소입니다.</small>
+						</div>
+						<div class="form-group">
+							<label>PASSWORD:</label>
+							<input type="password" class="form-control" id="party_pwd" name="party_pwd">
+							<small class="form-text text-muted">비밀번호는 8자 이상 20자 이하의 영문 대소문자, 숫자, 특수문자를 사용합니다.</small>
+						</div>					
+
+						<div class="form-check signChkBox">
+							<input class="form-check-input position-static" type="checkbox" id="chkSaveId"> 아이디 저장하기
+						</div>
+
+
+						<div style="margin:40px 0 0 0;">
+							<button type="button" class="btn btn-outline btn-rounded btn-primary mb-2 btn-block" id="btnLogin">로그인</button>
+						</div>
+
+						<div class="signChkBox" style="margin-bottom: 60px;">
+							 <a href="/member/findPW">비밀번호를 잊으셨나요？</a>
+						</div>
+
+						<div class="" style="margin-bottom: 100px;">
+							<div style="color:#999; font-size: 18px; margin-bottom: 5px;"><img src="/img/member/m_icon_01.png" width="22" style="margin-bottom:3px;"> 조심하세요!</div>
+							<div style="color:#999; font-size: 13px; margin-bottom: 30px;">
+							아이디 저장 기능 사용을 권장하지 않습니다.<br/>
+							PC방 또는 공용 인터넷 환경에서 사용할 경우 고객정보가 노출될 수 있습니다.</div>
+
+
+
+							<div style="color:#999; font-size: 18px; margin-bottom: 5px;"><img src="/img/member/m_icon_02.png" width="22" style="margin-bottom:3px;"> 아직 규제개혁당의 당원이 아니십니까?</div>
+							<div style="color:#999; font-size: 13px;">규제개혁당의 당원이 되면 보다 많은 혜택을 받으실 수 있습니다.</div>
+
+							<div style="font-size: 14px; margin-top:10px">
+								<a href="/member/join">규제개혁당원 가입하기</a>
+							</div>
+						</div>
+				</div>
+
+			</div>
+		</div>
+		</form>
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</div>
+		<!-- 본문 끝 -->
+		
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+
+</body>
+
+</html>

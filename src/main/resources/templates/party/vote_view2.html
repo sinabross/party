@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		var vote = /*[[${vote}]]*/
+		
+		$(document).ready(function(){
+			$('#btnList').off('click').on('click', function(){
+				var url = '/party/vote';
+				$('#mainForm #status').val('E');
+				$('#mainForm').attr('method','POST').attr('action', url).submit();
+			});
+		});
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="${param.page}">
+			<input type="hidden" id="vote_idx" name="vote_idx" th:value="${param.vote_idx}">
+			<input type="hidden" id="status" name="status" th:value="${param.status}">
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_11.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				투표
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 당원 &gt; 투표
+				</div>
+			</div>
+
+			<section class=" ">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 text-center ">
+							<table class="table text-left">
+								<thead>
+									<tr>
+										<th class="font20" style="padding:30px 0" th:text="${vote.vote_title}"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style="background-color: #f6f6f6">
+											<i class="fas fa-user"></i> <span th:text="${vote.reg_id}">홍길동</span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-calendar-minus"></i> 등록일 : <span th:text="${vote.start_dt}"></span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-calendar-minus"></i> 마감일 : <span th:text="${vote.end_dt}"></span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+											<i class="far fa-eye"></i> <span th:text="${vote.view_cnt}"></span> &nbsp;&nbsp;										
+										</td>
+									</tr>
+									
+									<tr>
+										<td>
+											<div class="col-12">
+											
+												<table class="table text-center">
+													<tr>
+														<th>투표인원수</th>
+														<th>찬성표</th>
+														<th>반대표</th>
+														<th>결과</th>
+													</tr>
+													<tr>
+														<td th:text="${vote.ycnt + vote.ncnt}">200</td>
+														<td th:text="${vote.ycnt}">150</td>
+														<td th:text="${vote.ncnt}">50</td>
+														<td>가결</td>
+													</tr>
+												</table>
+											
+												<div class="progress-bars mt-4">
+													<div class="progress-label">
+														<span>투표율</span>
+													</div>
+													<div class="progress mb-2">
+														<div class="progress-bar progress-bar-tertiary" th:style="${'width:' + vote.votepercent + '%'}">
+															<span class="progress-bar-tooltip" style="opacity: 1;" th:text="${vote.votepercent}"></span>
+														</div>
+													</div>
+													<div class="progress-label">
+														<span>찬성율</span>
+													</div>
+													<div class="progress mb-2">
+														<div class="progress-bar progress-bar-primary" th:style="${'width:' + vote.ypercent + '%'}">
+															<span class="progress-bar-tooltip" style="opacity: 1;" th:text="${vote.ypercent}"></span>
+														</div>
+													</div>
+													<div class="progress-label">
+														<span>반대율</span>
+													</div>
+													<div class="progress mb-2">
+														<div class="progress-bar progress-bar-secondary" th:style="${'width:' + vote.npercent + '%'}">
+															<span class="progress-bar-tooltip" style="opacity: 1;" th:text="${vote.npercent}"></span>
+														</div>
+													</div>
+												</div>
+													
+												
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td th:utext="${vote.vote_content}"></td>
+									</tr>
+								</tbody>
+							</table>
+							
+							<!-- 글쓰기 -->
+							<hr class="solid">
+							<div class="row">
+								<div class="col-12 text-right">
+									<a href="javascript:void(0)" class="btn btn-outline btn-primary mb-2" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem" id="btnList">목록보기</a>
+								</div>
+							</div>
+							<!-- 글쓰기 끝 -->
+							
+
+							
+						</div>
+					</div>
+				</div>
+			</section>
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="common/commonHead"></th:block>
+	
+	<script type="text/javascript" th:inline="javascript">
+		var notice_type = 'NTC05';
+		// 페이징 유지
+		var page = /*[[${notice.page}]]*/;
+		var dataPerPage = 9;
+		var pageCount = 10;
+		
+		$(document).ready(function(){
+			
+			// 관리자 기능 remove
+			if(/*[[${session.SESSION_INFO}]]*/ != null){
+				var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+				if(sessionInfo.party_level != 999999999){
+					$('.funcAdm').remove();
+				}else{
+					// ADMIN - 글쓰기 버튼  
+					$('.btnRegistration').on('click', function(){
+						btnRegistration();
+					});
+					
+					// ADMIN - 선택 글 삭제 버튼
+					$('.btnDelete').on('click', function(){
+						deleteNotice();
+					});
+					// ADMIN - 전체선택
+					$('#allCheck').on('click', function(){
+						allCheck();
+					});
+				}
+			}else{
+				$('.funcAdm').remove();
+			}
+			
+			// PC/MOBILE 검색 BUTTON
+			$('.btnSearch').off('click').on('click', function(){
+				list(1);
+			});
+			
+			// PC/MOBILE 검색 INPUT
+			$('.searchWord').off('chnage').on('change', function(){
+				var value = $(this).val();
+				$('.searchWord').val(value);
+			});
+			
+			list(page); // 페이징 유지
+		});
+		
+		
+		// 상세보기 화면이동
+		var detailView = function(){
+			$('#mainForm #notice_type').val(notice_type);
+			$('#mainForm #notice_idx').val($(this).attr('data-notice-idx'));
+			$('#mainForm').attr('method','POST').attr('action','/news/comment/view').submit();
+		}
+		
+		// 목록조회
+		var list = function(page){
+			
+			// 페이징 유지
+			$('#mainForm #page').val(page);
+			
+			if(page == undefined || page == null){
+				page = 1;
+			}
+    		
+    		$.ajax({
+		        type:'POST',
+		        url:'/news/comment/list',
+		        data: {
+					'notice_type' : notice_type,		        	
+		        	'searchWord' : $('#searchWord').val(),
+		        	'page' : page
+		        },
+		        cache: false,
+		        success:function(response) {
+		        	
+		        	var list = response.list;
+		        	var mList = response.mList
+		        	var total = response.total;
+		        	var body = '';
+		        	var mBody = '';
+	        		var sessionInfo = /*[[${session.SESSION_INFO}]]*/;
+		        	
+		        	if(list.length > 0){
+		        		
+		        		dataPerPage = 9;
+			    		pageCount = 10;
+		        		
+			        	for(var i=0; i<list.length; i++){
+			        		
+			        		var notice = list[i];
+			        		
+			        		if(i == 0){
+			        			notice_idx = notice.notice_idx;
+			        		}
+			        		
+		        			//PC
+		        			body += '<div class="col-sm-8 col-md-4 mb-4 mb-md-0">';
+		        			body += '	<article>';
+		        			body += '		<div class="row">';
+		        			body += '			<div class="col" style="margin-top:15px;">';
+		        			body += '				<a href="javascript:void(0)" class="text-decoration-none detailView" data-notice-idx="' + notice.notice_idx + '">';
+
+		        			if(notice.upload_file_path == null || notice.upload_file_path == "" || notice.real_file_name == null || notice.real_file_name == "") {
+		        			
+		        				body += '					<img class="img-fluid hover-effect-2 mb-3 img_comment_list" alt="" src="/img/common/no_image.png" />';
+		        				
+		        			}else{
+		        				notice.upload_file_path = notice.upload_file_path.split("/")[1];
+		        				body += '					<img class="img-fluid hover-effect-2 mb-3 img_comment_list" alt="" src="/upload/display?fileName=' + notice.notice_type + "/thumb_" + notice.upload_file_path + '_' + notice.real_file_name + '" />';
+		        			}
+		        			
+		        			body += '				</a>';
+		        			body += '			</div>';
+		        			body += '		</div>';
+		        			body += '		<div class="row">';
+		        			body += '			<div class="col">';
+		        			body += '				<div class="text-color-primary text-2 mb-1">' + notice.reg_dt + '</div>';
+		        			
+		        			if (notice.notice_title.length > 44) {
+		        				body += '				<h4 class="line-height-5 ls-0 comment_list_title"><a href="javascript:void(0)" class="text-dark text-decoration-none detailView" data-notice-idx="' + notice.notice_idx + '">' + notice.notice_title.substr(0, 44) + "..." + '</a></h4>';
+		        	            
+		        	        }else{
+		        	        	body += '				<h4 class="line-height-5 ls-0 comment_list_title"><a href="javascript:void(0)" class="text-dark text-decoration-none detailView" data-notice-idx="' + notice.notice_idx + '">' + notice.notice_title + '</a></h4>';
+		        	        }
+
+		        			if (notice.notice_content.length > 69) {
+		        				body += '				<div class="text-color-dark opacity-7 mb-3 comment_list_content">' + notice.notice_content.substr(0, 69) + "..." + '</div>';
+		        				
+		        			}else{
+		        				body += '				<div class="text-color-dark opacity-7 mb-3 comment_list_content">' + notice.notice_content + '</div>';
+		        			}
+		        			
+		        			body += '			</div>';
+		        			body += '		</div>';
+		        			body += '	</article>';
+		        			body += '</div>';
+			        		
+			        	}
+			        	
+		        	}else{
+	        			
+		        		// PC
+		        		body += '<div class="txt_comment_list">';
+		        		body += '	게시글이 존재하지 않습니다.';
+		        		body += '<div>';
+		        	}
+		        	
+		        	$('#listBody').html(body);
+		        	paging(total, page, 'commentPaging');
+		        	
+		        	// 상세보기 이벤트 추가
+		        	$('.detailView').off('click').on('click', detailView);
+		        },
+		        error:function(response, status, error) {
+		            alert('리스트를 불러올 수 없습니다.');
+		        }
+		    });
+    	}
+		
+	</script>
+</head>
+
+<body class="loading-overlay-showing" data-plugin-page-transition data-loading-overlay data-plugin-options="{'hideDelay': 500}">
+	<th:block th:replace="common/commonTop"></th:block>
+
+	<div class="body">
+		<th:block th:replace="common/commonMenu"></th:block>
+		
+		<form id="mainForm">
+			<input type="hidden" id="page" name="page" th:value="1"><!-- 페이징 유지 -->
+			<input type="hidden" id="notice_idx" name="notice_idx" th:value="0">
+			<input type="hidden" id="notice_type" name="notice_type" th:value="NTC05"><!-- ADMIN -->
+		</form>
+
+		<!-- 본문 시작 -->
+		<div role="main" class="main">
+
+			<div class="col-12 infoTitle text-center" style="background-image: url(/img/common/subtop_bg_07.png); background-repeat: no-repeat; background-position: center; background-size: cover">
+				논평
+			</div>
+
+
+			<div class="container">
+				<div class="col-12 borderBottom" >
+					<i class="fas fa-home"></i> &gt; 소식 &gt; 논평
+				</div>
+			</div>
+
+			<section class=" ">
+				<div class="container">
+					<div class="row">
+						
+						
+						<div class="col-12" style="margin-top:50px;">
+							<!-- news -->
+							<div class="row recent-posts" id="listBody">
+							</div>
+							<!-- news end -->
+							
+							<!-- 글쓰기 -->
+							<hr class="solid">
+							<div class="row">
+								<div class="col-12 text-right">
+									<button type="button" class="btn btn-outline btn-primary mb-2 funcAdm btnRegistration" style="margin-top:6px; padding: 0.2rem 0.9rem 0.3rem">글 쓰기</button>
+								</div>
+							</div>
+							<!-- 글쓰기 끝 -->
+
+							<div class="row justify-content-center" id="commentPaging">
+							</div>
+
+							<div class="row justify-content-center">
+								<div class="col-lg-5">
+									<div class="input-group">
+										<input type="text" class="form-control searchWord" placeholder="검색어를 입력해주세요" id="searchWord" name="searchWord">
+										<div class="input-group-append">
+										<button class="btn btn-primary btnSearch" type="button">
+										<i class="fa fa-search"></i>
+										</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+				</div>
+			</section>
+
+
+
+
+
+
+		</div>
+		<!-- 본문 끝 -->
+
+		<th:block th:replace="common/commonFooter"></th:block>
+	</div>
+
+	<th:block th:replace="common/commonBottom"></th:block>
+</body>
+
+</html>
